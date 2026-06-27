@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.2.2**
+Build hiện tại: **0.2.3**
 
 ## Chức năng chính
 
@@ -10,6 +10,7 @@ Build hiện tại: **0.2.2**
 - Workspace Lite: gom nhiệm vụ theo hồ sơ công việc.
 - AI Review: duyệt đề xuất trước khi ghi nhiệm vụ.
 - Audit Log: nhật ký thao tác hệ thống.
+- Architecture Hardening: model nghiệp vụ, thư mục tài liệu/workspace, migration SQL nền.
 
 ## Cài đặt nhanh
 
@@ -42,3 +43,15 @@ python -m database.init_db
 ```
 
 Lệnh này sẽ tự bổ sung bảng/cột mới.
+
+
+## Quy trình Git
+
+Sau khi cập nhật source:
+
+```bash
+python -m database.init_db
+pytest -q
+git add .
+git commit -m "chore(architecture): harden project foundation"
+```

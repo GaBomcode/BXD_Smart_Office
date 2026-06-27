@@ -55,11 +55,45 @@ def migrate_database() -> None:
             _safe_alter(conn, "task_updates", "created_by TEXT DEFAULT 'Người dùng'")
 
 
+
+
+def _existing_migrations(conn) -> set[str]:
+    """Lấy danh sách migration đã được ghi nhận."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            version TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            applied_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    return {row[0] for row in conn.execute("SELECT version FROM schema_migrations").fetchall()}
+
+
+def run_sql_migrations(conn) -> None:
+    """Chạy các migration SQL idempotent trong database/migrations."""
+    migrations_dir = Path(__file__).with_name("migrations")
+    if not migrations_dir.exists():
+        return
+    applied = _existing_migrations(conn)
+    for path in sorted(migrations_dir.glob("*.sql")):
+        version = path.stem
+        if version in applied:
+            continue
+        conn.executescript(path.read_text(encoding="utf-8"))
+        conn.execute(
+            "INSERT OR IGNORE INTO schema_migrations(version, name) VALUES(?, ?)",
+            (version, path.name),
+        )
+        logger.info("Applied migration %s", path.name)
+
+
 def init_database() -> None:
     schema_path = Path(__file__).with_name("schema.sql")
     with get_connection() as conn:
         conn.executescript(schema_path.read_text(encoding="utf-8"))
         migrate_database()
+        run_sql_migrations(conn)
         conn.execute("INSERT OR IGNORE INTO roles(title, unit, scope, note) VALUES(?,?,?,?)", ("Trưởng Ban", "Ban Xây dựng Đảng", "Lãnh đạo, chỉ đạo, duyệt nhiệm vụ", "Vai trò quản trị nghiệp vụ"))
         conn.executemany("INSERT OR IGNORE INTO staff(full_name, position, field, can_receive_task, system_role) VALUES(?,?,?,?,?)", STAFF)
         for full_name, _position, _field, _can, system_role in STAFF:
