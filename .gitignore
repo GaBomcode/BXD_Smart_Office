@@ -1,9 +1,16 @@
 .venv/
+.codex_test_deps/
+.pytest_tmp*/
+.pytest_cache/
 __pycache__/
 *.pyc
 
 logs/
 backups/
+documents/exports/*
+!documents/exports/.gitkeep
+documents/templates/*
+!documents/templates/.gitkeep
 
 database/*.db
 database/*.sqlite

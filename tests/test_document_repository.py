@@ -19,7 +19,9 @@ def test_document_migration_creates_tables() -> None:
     assert "document_templates" in tables
     assert "document_sections" in tables
     assert "document_drafts" in tables
+    assert "document_settings" in tables
     assert "003_document_module" in migrations
+    assert "004_document_settings" in migrations
 
 
 def test_document_repository_crud_template_section_and_draft(tmp_path: Path) -> None:

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## Build 0.3.0 - Sprint 3 Document Module
+
+### Added
+- Thêm giao diện `Soạn thảo văn bản` trong sidebar Streamlit.
+- Thêm luồng nạp mẫu, phân tích mẫu, gợi ý mẫu gần nhất, sinh dự thảo chờ duyệt.
+- Thêm kiểm tra nhanh thể thức văn bản trước khi xuất.
+- Thêm xuất dự thảo DOCX vào `documents/exports`.
+- Thêm cấu hình thể thức văn bản: cơ quan, ký hiệu, địa danh, nơi nhận mặc định, người ký, font và lề.
+- Thêm test Sprint 3 cho phân tích mẫu, gợi ý mẫu, sinh dự thảo và xuất DOCX.
+
+### Notes
+- AI/offline engine chỉ tham mưu; người dùng vẫn duyệt và chỉnh sửa trước khi xuất văn bản.
+
 ## Build 0.3.0 - Document Module Patch A
 
 ### Added
@@ -59,4 +72,3 @@
 ### Test
 - `python -m pytest -q`
 - Kết quả: `15 passed`
-

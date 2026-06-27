@@ -19,6 +19,7 @@ class DocumentRepository(BaseRepository):
     TEMPLATE_TABLE = "document_templates"
     SECTION_TABLE = "document_sections"
     DRAFT_TABLE = "document_drafts"
+    SETTING_TABLE = "document_settings"
 
     def create_template(self, template: DocumentTemplate) -> int:
         """Tạo mẫu văn bản mới."""
@@ -108,3 +109,25 @@ class DocumentRepository(BaseRepository):
         """Xóa dự thảo."""
         logger.info("Delete document draft id=%s", draft_id)
         return self.delete(self.DRAFT_TABLE, draft_id)
+
+    def list_settings(self) -> dict[str, str]:
+        """Lấy toàn bộ cấu hình thể thức văn bản."""
+        rows = self.fetch_all(f"SELECT setting_key, setting_value FROM {self.SETTING_TABLE}")
+        return {str(row["setting_key"]): str(row["setting_value"]) for row in rows}
+
+    def upsert_setting(self, key: str, value: str, description: str | None = None) -> int:
+        """Tạo hoặc cập nhật một khóa cấu hình thể thức."""
+        if not key.strip():
+            raise ValueError("setting_key là bắt buộc")
+        logger.info("Upsert document setting: %s", key)
+        return self.execute(
+            f"""
+            INSERT INTO {self.SETTING_TABLE}(setting_key, setting_value, description)
+            VALUES(?, ?, ?)
+            ON CONFLICT(setting_key) DO UPDATE SET
+                setting_value=excluded.setting_value,
+                description=COALESCE(excluded.description, {self.SETTING_TABLE}.description),
+                updated_at=CURRENT_TIMESTAMP
+            """,
+            (key.strip(), value.strip(), description),
+        )

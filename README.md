@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.2.3**
+Build hiện tại: **0.3.0**
 
 ## Chức năng chính
 
@@ -11,6 +11,7 @@ Build hiện tại: **0.2.3**
 - AI Review: duyệt đề xuất trước khi ghi nhiệm vụ.
 - Audit Log: nhật ký thao tác hệ thống.
 - Architecture Hardening: model nghiệp vụ, thư mục tài liệu/workspace, migration SQL nền.
+- Phân hệ 2: Soạn thảo văn bản theo mẫu, phân tích mẫu, sinh dự thảo chờ duyệt, xuất DOCX.
 
 ## Cài đặt nhanh
 
@@ -59,7 +60,7 @@ git commit -m "chore(architecture): harden project foundation"
 
 ## Sprint 3 - Build 0.3
 
-Phân hệ Soạn thảo văn bản bắt đầu từ tầng dữ liệu: mẫu văn bản, section/bố cục và dự thảo.
+Phân hệ Soạn thảo văn bản hỗ trợ nạp mẫu, phân tích bố cục, gợi ý mẫu, sinh dự thảo chờ duyệt, kiểm tra thể thức và xuất DOCX.
 
 Chạy kiểm thử:
 
@@ -85,3 +86,11 @@ Chạy kiểm thử:
 python -m pytest -q
 ```
 
+### Sprint 3 hoàn thiện
+
+- Mở menu `Soạn thảo văn bản` trong sidebar.
+- Nạp và phân tích mẫu văn bản chuẩn.
+- Nhập yêu cầu soạn thảo, nhận gợi ý mẫu gần nhất.
+- Sinh dự thảo ở trạng thái chờ duyệt.
+- Cấu hình thể thức: cơ quan, ký hiệu, địa danh, người ký, font, lề.
+- Kiểm tra nhanh thể thức và xuất DOCX theo cấu hình.
