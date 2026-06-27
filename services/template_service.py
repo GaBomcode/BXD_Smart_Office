@@ -20,6 +20,24 @@ class TemplateService:
     def __init__(self, document_service: DocumentService | None = None) -> None:
         self.document_service = document_service or DocumentService()
 
+    def upload_template_file(
+        self,
+        file_path: str | Path,
+        *,
+        document_type: str = "Công văn",
+        field: str | None = None,
+        created_by: str = "Nguyễn Trung Hiền",
+    ) -> int:
+        """Upload file vào kho mẫu và đăng ký mẫu văn bản."""
+        path = Path(file_path)
+        logger.info("Upload template file: %s", path)
+        return self.document_service.upload_template_file(
+            path,
+            document_type=document_type,
+            field=field,
+            created_by=created_by,
+        )
+
     def register_existing_file(
         self,
         file_path: str | Path,

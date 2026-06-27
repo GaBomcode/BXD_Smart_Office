@@ -9,6 +9,7 @@ from core.config import DOCUMENT_TEMPLATE_DIR
 from models.document_draft import DocumentDraft
 from models.document_section import DocumentSection
 from models.document_template import ALLOWED_TEMPLATE_EXTENSIONS, DocumentTemplate
+from services.document_upload_service import DocumentUploadService
 from repositories.document_repository import DocumentRepository
 
 logger = logging.getLogger(__name__)
@@ -19,6 +20,24 @@ class DocumentService:
 
     def __init__(self, repository: DocumentRepository | None = None) -> None:
         self.repository = repository or DocumentRepository()
+
+    def upload_template_file(
+        self,
+        source_path: str | Path,
+        *,
+        document_type: str = "Công văn",
+        field: str | None = None,
+        created_by: str = "Nguyễn Trung Hiền",
+    ) -> int:
+        """Upload file mẫu vào kho templates rồi ghi nhận vào database."""
+        upload_result = DocumentUploadService().save_local_file(source_path)
+        return self.register_template(
+            name=Path(upload_result.original_name).stem,
+            source_path=upload_result.stored_path,
+            document_type=document_type,
+            field=field,
+            created_by=created_by,
+        )
 
     def register_template(
         self,

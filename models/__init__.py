@@ -4,6 +4,7 @@ from models.audit_log import AuditLog
 from models.document_draft import DocumentDraft
 from models.document_section import DocumentSection
 from models.document_template import DocumentTemplate
+from models.document_upload import DocumentUploadResult
 from models.kpi_rule import KpiRule
 from models.role import Role
 from models.staff import Staff
@@ -18,6 +19,7 @@ __all__ = [
     "DocumentDraft",
     "DocumentSection",
     "DocumentTemplate",
+    "DocumentUploadResult",
     "KpiRule",
     "Role",
     "Staff",

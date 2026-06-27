@@ -46,3 +46,17 @@
 
 ### Tests
 - 4/4 tests passed.
+
+## Build 0.3.0 - Patch B
+
+### Added
+- Upload Engine cho kho mẫu văn bản.
+- `DocumentUploadResult` model.
+- `DocumentUploadService` hỗ trợ DOC, DOCX, PDF.
+- API `upload_template_file` trong `DocumentService` và `TemplateService`.
+- Test upload file local, stream upload, từ chối file rỗng và file không hỗ trợ.
+
+### Test
+- `python -m pytest -q`
+- Kết quả: `15 passed`
+
