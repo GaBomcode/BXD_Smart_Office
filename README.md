@@ -55,3 +55,14 @@ pytest -q
 git add .
 git commit -m "chore(architecture): harden project foundation"
 ```
+
+
+## Sprint 3 - Build 0.3
+
+Phân hệ Soạn thảo văn bản bắt đầu từ tầng dữ liệu: mẫu văn bản, section/bố cục và dự thảo.
+
+Chạy kiểm thử:
+
+```bash
+python -m pytest -q
+```

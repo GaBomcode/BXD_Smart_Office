@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## Build 0.3.0 - Document Module Patch A
+
+### Added
+- Thêm migration `003_document_module.sql` cho `document_templates`, `document_sections`, `document_drafts`.
+- Thêm model `DocumentSection` và nâng cấp `DocumentTemplate`, `DocumentDraft` với validation.
+- Thêm `DocumentRepository`, `DocumentService`, `TemplateService`.
+- Mở rộng `BaseRepository` với insert/update/delete/find/list.
+- Thêm test dữ liệu cho phân hệ Soạn thảo văn bản.
+
+### Tests
+- 11/11 tests passed.
+
 ## Build 0.2.3 - Architecture Hardening
 
 ### Added

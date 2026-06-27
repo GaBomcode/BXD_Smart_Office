@@ -2,6 +2,7 @@
 
 from models.audit_log import AuditLog
 from models.document_draft import DocumentDraft
+from models.document_section import DocumentSection
 from models.document_template import DocumentTemplate
 from models.kpi_rule import KpiRule
 from models.role import Role
@@ -15,6 +16,7 @@ from models.workspace import Workspace
 __all__ = [
     "AuditLog",
     "DocumentDraft",
+    "DocumentSection",
     "DocumentTemplate",
     "KpiRule",
     "Role",
