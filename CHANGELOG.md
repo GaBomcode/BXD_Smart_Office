@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## Build 0.6.2 - Architecture Audit
+
+- Thực hiện audit Repository Layer, Service Layer, logging, type hint, import, dead code, requirements, migration và test.
+- Thay lời gọi stdout còn lại trong `database/init_db.py` bằng logger.
+- Bổ sung bộ báo cáo audit trong `docs/audit/` và `docs/ARCHITECTURE_AUDIT.md`.
+- Cập nhật version Build 0.6.2.
+- Không thay đổi nghiệp vụ, UI hoặc workflow.
+
+## Build 0.6.1 - Audit & Polish
+
+- Chuẩn hóa giao diện AI Draft tiếng Việt có dấu.
+- Chuẩn hóa thông báo lỗi người dùng trong AI Draft Service.
+- Bổ sung GitHub Actions chạy test tự động.
+- Bổ sung smoke test router/UI.
+- Không thay đổi nghiệp vụ.
+
 ## Build 0.6.0 - AI Draft Foundation
 
 ### Added

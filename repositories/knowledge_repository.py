@@ -134,12 +134,14 @@ class KnowledgeRepository(BaseRepository):
             )
         return self.list(self.RELATION_TABLE, order_by="weight DESC, id DESC")
 
+    # TODO REMOVE AFTER BUILD 1.0: Job lifecycle is prepared but not currently invoked by services.
     def create_job(self, job_type: str, *, target_id: int | None = None, detail: str | None = None) -> int:
         return self.execute(
             f"INSERT INTO {self.JOB_TABLE}(job_type, status, target_id, detail, started_at) VALUES(?,?,?,?,CURRENT_TIMESTAMP)",
             (job_type, "running", target_id, detail),
         )
 
+    # TODO REMOVE AFTER BUILD 1.0: Job lifecycle is prepared but not currently invoked by services.
     def finish_job(self, job_id: int, status: str, detail: str | None = None) -> int:
         return self.execute(
             f"UPDATE {self.JOB_TABLE} SET status=?, detail=COALESCE(?, detail), finished_at=CURRENT_TIMESTAMP WHERE id=?",

@@ -57,6 +57,7 @@ class TemplateService:
             created_by=created_by,
         )
 
+    # TODO REMOVE AFTER BUILD 1.0: Currently no source path calls this wrapper.
     def list_all(self) -> list[dict]:
         """Liệt kê toàn bộ mẫu văn bản."""
         return self.document_service.list_templates()
