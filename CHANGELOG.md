@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## Build 0.6.0 - AI Draft Foundation
+
+### Added
+- Thêm migration `008_ai_draft_engine.sql` cho `ai_draft_requests`, `ai_draft_results`, `ai_draft_citations`, `ai_draft_revisions`.
+- Thêm model `AIDraftRequest`, `AIDraftResult`, `AIDraftCitation`.
+- Thêm `AIDraftRepository` và `AIDraftService`.
+- Thêm nhận diện loại văn bản rule-based với confidence score.
+- Thêm template selector top 5 có score, lý do chọn và citation.
+- Thêm evidence collector dùng Knowledge Engine semantic search.
+- Thêm outline generator với trạng thái `pending_outline_review`.
+- Thêm draft generator chỉ chạy sau khi người dùng duyệt dàn ý.
+- Thêm review workflow, revision history và audit log.
+- Thêm export DOCX chỉ cho dự thảo đã duyệt.
+- Thêm menu Streamlit `AI Soạn thảo`.
+- Thêm tests `tests/test_ai_draft_foundation.py`.
+
+### Notes
+- Không làm chatbot, agent, API cloud hoặc AI tự ban hành.
+- AI Draft Engine chỉ tham mưu; người dùng duyệt trước khi lưu/xuất.
+- Không bắt đầu Sprint 7.
+
 ## Build 0.5.1 - AI Core Optimization
 
 ### Added

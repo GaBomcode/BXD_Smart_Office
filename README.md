@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.5.1**
+Build hiện tại: **0.6.0**
 
 ## Chức năng chính
 
@@ -14,6 +14,22 @@ Build hiện tại: **0.5.1**
 - Phân hệ 2: Soạn thảo văn bản theo mẫu, phân tích mẫu, sinh dự thảo chờ duyệt, xuất DOCX.
 - Phân hệ 3: Kho văn bản, quét thư mục nhiều tầng, lưu metadata và chuẩn bị nền index.
 - AI Knowledge Engine: chunk, keyword, relation, graph, embedding, semantic search có citation.
+- AI Draft Engine: tham mưu soạn thảo theo Knowledge Engine, có citation và duyệt từng bước trước khi xuất DOCX.
+
+## Sprint 6 - Build 0.6
+
+AI Draft Engine xây trên Knowledge Engine hiện có. Sprint này không làm chatbot, không để AI tự quyết định và không xuất văn bản nếu người dùng chưa duyệt.
+
+Thành phần chính:
+
+- Tiếp nhận yêu cầu soạn thảo và nhận diện loại văn bản rule-based.
+- Gợi ý top 5 mẫu từ Document Library / Knowledge Engine kèm citation.
+- Thu thập văn bản căn cứ bằng semantic search kèm file, chunk, section, page, checksum và score.
+- Sinh dàn ý trước, trạng thái `pending_outline_review`.
+- Chỉ sinh dự thảo sau khi người dùng duyệt dàn ý.
+- Dự thảo ở trạng thái `pending_user_review`, người dùng xem/sửa/duyệt trước khi xuất DOCX.
+- Lưu lịch sử chỉnh sửa và audit log cho các mốc duyệt.
+- Menu Streamlit mới: `AI Soạn thảo`.
 
 ## Sprint 4 - Build 0.4
 
