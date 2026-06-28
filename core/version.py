@@ -1,3 +1,3 @@
 APP_NAME = "BXD Smart Office - Offline"
-APP_VERSION = "0.5.1"
-BUILD_NAME = "Build 0.5.1 - AI Core Optimization"
+APP_VERSION = "0.6.0"
+BUILD_NAME = "Build 0.6.0 - AI Draft Foundation"
