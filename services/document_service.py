@@ -106,6 +106,7 @@ class DocumentService:
             raise ValueError("Mẫu văn bản chưa đủ thông tin để phân tích")
         return self.repository.create_template(template)
 
+    # TODO REMOVE AFTER BUILD 1.0: Currently no source path calls this direct model wrapper.
     def create_template_record(self, template: DocumentTemplate) -> int:
         """Tạo mẫu văn bản từ model đã được chuẩn hóa."""
         if not template.is_ready_for_analysis:
@@ -417,6 +418,7 @@ class DocumentService:
         """Danh sách dự thảo."""
         return self.repository.list_drafts(status=status)
 
+    # TODO REMOVE AFTER BUILD 1.0: Runtime directories are already created by core.config.
     def ensure_template_directory(self) -> Path:
         """Đảm bảo thư mục lưu mẫu tồn tại."""
         DOCUMENT_TEMPLATE_DIR.mkdir(parents=True, exist_ok=True)

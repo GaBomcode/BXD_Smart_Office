@@ -62,7 +62,7 @@ class AIDraftService:
         self.knowledge_service = knowledge_service or KnowledgeService(library_repository=self.library_repository)
         self.document_service = document_service or DocumentService()
 
-    def create_request(self, request_text: str, *, requested_by: str = "Nguoi dung") -> int:
+    def create_request(self, request_text: str, *, requested_by: str = "Người dùng") -> int:
         """Create an AI Draft request after rule-based intent detection."""
         detection = self.detect_intent(request_text)
         status = "needs_document_type_selection" if detection.requires_user_selection else "ready_for_template_selection"
@@ -88,7 +88,7 @@ class AIDraftService:
         """Detect document type with deterministic rules, no LLM."""
         normalized = self._normalize(request_text)
         if not normalized:
-            raise ValueError("Yeu cau soan thao khong duoc rong")
+            raise ValueError("Yêu cầu soạn thảo không được rỗng")
         rules: dict[str, list[str]] = {
             "Cong van": ["cong van", "de nghi", "kinh gui", "phoi hop", "trien khai"],
             "Bao cao": ["bao cao", "ket qua", "tinh hinh", "danh gia", "kien nghi"],
@@ -113,10 +113,10 @@ class AIDraftService:
         confidence = round(confidence, 2)
         return IntentDetection(best_type, confidence, confidence < LOW_CONFIDENCE_THRESHOLD, matched)
 
-    def select_document_type(self, request_id: int, document_type: str, *, actor: str = "Nguoi dung") -> dict[str, Any]:
+    def select_document_type(self, request_id: int, document_type: str, *, actor: str = "Người dùng") -> dict[str, Any]:
         """Human selects document type when rule confidence is low."""
         if document_type not in SUPPORTED_DOCUMENT_TYPES:
-            raise ValueError("Loai van ban khong hop le")
+            raise ValueError("Loại văn bản không hợp lệ")
         self._require_request(request_id)
         self.repository.update_request(
             request_id,
@@ -165,7 +165,7 @@ class AIDraftService:
                 {
                     "document": document,
                     "score": round(min(score, 1.0), 4),
-                    "reason": "; ".join(reasons) if reasons else "Mau trong kho van ban",
+                    "reason": "; ".join(reasons) if reasons else "Mẫu trong kho văn bản",
                     "citation": citation.to_dict(),
                 }
             )
@@ -231,7 +231,7 @@ class AIDraftService:
         )
         result = AIDraftResult(
             request_id=request_id,
-            title=title or f"Du thao {document_type.lower()}",
+            title=title or f"Dự thảo {document_type.lower()}",
             document_type=document_type,
             template_document_id=template_document_id,
             outline_content=outline,
@@ -250,13 +250,13 @@ class AIDraftService:
         self.repository.update_request(request_id, {"status": "pending_outline_review"})
         return result_id
 
-    def approve_outline(self, result_id: int, *, approved_outline: str, actor: str = "Nguoi dung") -> dict[str, Any]:
+    def approve_outline(self, result_id: int, *, approved_outline: str, actor: str = "Người dùng") -> dict[str, Any]:
         """Human approves or edits outline before draft generation."""
         result = self._require_result(result_id)
         if str(result["status"]) != "pending_outline_review":
-            raise ValueError("Dan y khong o trang thai cho duyet")
+            raise ValueError("Dàn ý không ở trạng thái chờ duyệt")
         if not approved_outline.strip():
-            raise ValueError("Dan y da duyet khong duoc rong")
+            raise ValueError("Dàn ý đã duyệt không được rỗng")
         self.repository.update_result(
             result_id,
             {"outline_content": approved_outline.strip(), "status": "outline_approved", "review_note": "Outline approved"},
@@ -280,7 +280,7 @@ class AIDraftService:
         """Generate full draft only after outline approval."""
         result = self._require_result(result_id)
         if str(result["status"]) != "outline_approved":
-            raise ValueError("Can duyet dan y truoc khi sinh noi dung")
+            raise ValueError("Cần duyệt dàn ý trước khi sinh nội dung")
         request = self._require_request(int(result["request_id"]))
         citations = self.repository.list_citations(result_id=result_id)
         draft = self._compose_draft(
@@ -303,15 +303,15 @@ class AIDraftService:
         result_id: int,
         edited_content: str,
         *,
-        actor: str = "Nguoi dung",
+        actor: str = "Người dùng",
         note: str | None = None,
     ) -> dict[str, Any]:
         """Save user edits without publishing the draft."""
         result = self._require_result(result_id)
         if str(result["status"]) not in {"pending_user_review", "approved"}:
-            raise ValueError("Du thao chua san sang de chinh sua")
+            raise ValueError("Dự thảo chưa sẵn sàng để chỉnh sửa")
         if not edited_content.strip():
-            raise ValueError("Noi dung du thao khong duoc rong")
+            raise ValueError("Nội dung dự thảo không được rỗng")
         status = "pending_user_review"
         self.repository.update_result(result_id, {"draft_content": edited_content.strip(), "status": status, "review_note": note})
         self.repository.add_revision(
@@ -323,13 +323,13 @@ class AIDraftService:
         )
         return self._require_result(result_id)
 
-    def approve_draft(self, result_id: int, *, actor: str = "Nguoi dung", note: str | None = None) -> dict[str, Any]:
+    def approve_draft(self, result_id: int, *, actor: str = "Người dùng", note: str | None = None) -> dict[str, Any]:
         """Human approval gate before export."""
         result = self._require_result(result_id)
         if str(result["status"]) != "pending_user_review":
-            raise ValueError("Du thao phai o trang thai cho nguoi dung duyet")
+            raise ValueError("Dự thảo phải ở trạng thái chờ người dùng duyệt")
         if not str(result.get("draft_content") or "").strip():
-            raise ValueError("Du thao chua co noi dung")
+            raise ValueError("Dự thảo chưa có nội dung")
         now = datetime.now().isoformat(timespec="seconds")
         self.repository.update_result(
             result_id,
@@ -348,16 +348,16 @@ class AIDraftService:
         """Export only approved drafts to DOCX."""
         result = self._require_result(result_id)
         if str(result["status"]) != "approved":
-            raise ValueError("Chi xuat DOCX sau khi nguoi dung da duyet")
+            raise ValueError("Chỉ xuất DOCX sau khi người dùng đã duyệt")
         content = str(result.get("draft_content") or "").strip()
         if not content:
-            raise ValueError("Du thao chua co noi dung")
+            raise ValueError("Dự thảo chưa có nội dung")
         try:
             from docx import Document
             from docx.enum.text import WD_ALIGN_PARAGRAPH
             from docx.shared import Cm, Pt
         except ImportError as exc:
-            raise RuntimeError("Thieu python-docx de xuat DOCX") from exc
+            raise RuntimeError("Thiếu python-docx để xuất DOCX") from exc
 
         settings = self.document_service.get_document_settings()
         DOCUMENT_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -408,12 +408,12 @@ class AIDraftService:
         template: dict[str, Any] | None,
         evidence: list[dict[str, Any]],
     ) -> str:
-        source_note = "Co nguon can cu kem citation." if evidence else "Chua co nguon can cu; khong duoc khang dinh chac chan."
-        template_note = f"Mau tham chieu: {template.get('title') or template.get('file_name')}" if template else "Chua chon mau."
+        source_note = "Có nguồn căn cứ kèm citation." if evidence else "Chưa có nguồn căn cứ; không được khẳng định chắc chắn."
+        template_note = f"Mẫu tham chiếu: {template.get('title') or template.get('file_name')}" if template else "Chưa chọn mẫu."
         sections = self._outline_sections(document_type)
         lines = [
-            f"Dan y {document_type}",
-            f"Yeu cau: {request_text.strip()}",
+            f"Dàn ý {document_type}",
+            f"Yêu cầu: {request_text.strip()}",
             template_note,
             source_note,
             "",
@@ -421,44 +421,44 @@ class AIDraftService:
         for index, section in enumerate(sections, start=1):
             lines.append(f"{index}. {section}")
             if evidence:
-                lines.append("   - Gan citation lien quan truoc khi viet noi dung.")
+                lines.append("   - Gắn citation liên quan trước khi viết nội dung.")
             else:
-                lines.append("   - Chi neu du kien tham muu, cho nguoi dung bo sung can cu.")
+                lines.append("   - Chỉ nêu dự kiến tham mưu, chờ người dùng bổ sung căn cứ.")
         return "\n".join(lines)
 
     def _compose_draft(self, *, request_text: str, result: dict[str, Any], citations: list[dict[str, Any]]) -> str:
         document_type = str(result["document_type"])
         citation_lines = self._citation_lines(citations)
         if citation_lines:
-            evidence_intro = "Can cu cac nguon da thu thap:"
+            evidence_intro = "Căn cứ các nguồn đã thu thập:"
             evidence_block = "\n".join(citation_lines)
         else:
-            evidence_intro = "Chua co nguon can cu duoc tim thay."
-            evidence_block = "Noi dung duoi day chi la goi y tham muu, can nguoi dung bo sung/kiem chung can cu."
+            evidence_intro = "Chưa có nguồn căn cứ được tìm thấy."
+            evidence_block = "Nội dung dưới đây chỉ là gợi ý tham mưu, cần người dùng bổ sung/kiểm chứng căn cứ."
         outline = str(result.get("outline_content") or "")
         settings = self.document_service.get_document_settings()
         return "\n".join(
             [
-                "DU THAO",
+                "DỰ THẢO",
                 str(result["title"]).upper(),
                 "",
                 settings["agency_name"],
-                f"So: ......../{settings['document_code_prefix']}",
+                f"Số: ......../{settings['document_code_prefix']}",
                 "",
-                f"Loai van ban: {document_type}",
-                f"Yeu cau nguoi dung: {request_text.strip()}",
+                f"Loại văn bản: {document_type}",
+                f"Yêu cầu người dùng: {request_text.strip()}",
                 "",
                 evidence_intro,
                 evidence_block,
                 "",
-                "Noi dung tham muu:",
+                "Nội dung tham mưu:",
                 self._draft_body_from_outline(outline, has_evidence=bool(citation_lines)),
                 "",
-                "Luu y: AI Draft Engine chi tham muu. Nguoi dung phai kiem tra, chinh sua va duyet truoc khi xuat/ban hanh.",
+                "Lưu ý: AI Draft Engine chỉ tham mưu. Người dùng phải kiểm tra, chỉnh sửa và duyệt trước khi xuất/ban hành.",
                 "",
-                "Noi nhan:",
-                "- Nhu tren;",
-                "- Luu: VT.",
+                "Nơi nhận:",
+                "- Như trên;",
+                "- Lưu: VT.",
                 "",
                 settings["signer_title"],
                 settings["signer_name"],
@@ -472,31 +472,31 @@ class AIDraftService:
             title = re.sub(r"^\d+\.\s*", "", line.strip())
             body.append(line.strip())
             if has_evidence:
-                body.append(f"Trinh bay noi dung ve {title.lower()} theo cac citation da gan, khong mo rong ngoai nguon.")
+                body.append(f"Trình bày nội dung về {title.lower()} theo các citation đã gắn, không mở rộng ngoài nguồn.")
             else:
-                body.append(f"De xuat nguoi dung bo sung can cu truoc khi khang dinh ve {title.lower()}.")
+                body.append(f"Đề xuất người dùng bổ sung căn cứ trước khi khẳng định về {title.lower()}.")
             body.append("")
-        return "\n".join(body).strip() or "Can nguoi dung bo sung dan y da duyet."
+        return "\n".join(body).strip() or "Cần người dùng bổ sung dàn ý đã duyệt."
 
     def _citation_lines(self, citations: list[dict[str, Any]]) -> list[str]:
         lines: list[str] = []
         for index, citation in enumerate(citations, start=1):
-            title = citation.get("title") or "Nguon chua co ten"
-            number = citation.get("document_number") or "khong so"
-            section = citation.get("section") or "khong ro muc"
+            title = citation.get("title") or "Nguồn chưa có tên"
+            number = citation.get("document_number") or "không số"
+            section = citation.get("section") or "không rõ mục"
             score = float(citation.get("score") or 0)
-            lines.append(f"[{index}] {title} ({number}), muc {section}, score {score:.4f}.")
+            lines.append(f"[{index}] {title} ({number}), mục {section}, score {score:.4f}.")
         return lines[:10]
 
     @staticmethod
     def _outline_sections(document_type: str) -> list[str]:
         mapping = {
-            "Cong van": ["Can cu va boi canh", "Noi dung de nghi/trien khai", "To chuc thuc hien", "Noi nhan"],
-            "Bao cao": ["Tinh hinh chung", "Ket qua thuc hien", "Kho khan han che", "Kien nghi de xuat"],
-            "Ke hoach": ["Muc dich yeu cau", "Noi dung nhiem vu", "Tien do thuc hien", "To chuc thuc hien"],
-            "To trinh": ["Su can thiet", "Noi dung trinh", "Can cu va tac dong", "Kien nghi phe duyet"],
-            "Thong bao": ["Noi dung thong bao", "Doi tuong thuc hien", "Thoi gian hieu luc", "To chuc thuc hien"],
-            "Giay moi": ["Thanh phan moi", "Thoi gian dia diem", "Noi dung cuoc hop", "Thong tin lien he"],
+            "Cong van": ["Căn cứ và bối cảnh", "Nội dung đề nghị/triển khai", "Tổ chức thực hiện", "Nơi nhận"],
+            "Bao cao": ["Tình hình chung", "Kết quả thực hiện", "Khó khăn hạn chế", "Kiến nghị đề xuất"],
+            "Ke hoach": ["Mục đích yêu cầu", "Nội dung nhiệm vụ", "Tiến độ thực hiện", "Tổ chức thực hiện"],
+            "To trinh": ["Sự cần thiết", "Nội dung trình", "Căn cứ và tác động", "Kiến nghị phê duyệt"],
+            "Thong bao": ["Nội dung thông báo", "Đối tượng thực hiện", "Thời gian hiệu lực", "Tổ chức thực hiện"],
+            "Giay moi": ["Thành phần mời", "Thời gian địa điểm", "Nội dung cuộc họp", "Thông tin liên hệ"],
         }
         return mapping.get(document_type, mapping["Cong van"])
 
@@ -552,20 +552,20 @@ class AIDraftService:
     def _require_request(self, request_id: int) -> dict[str, Any]:
         request = self.repository.get_request(request_id)
         if not request:
-            raise ValueError("Khong tim thay yeu cau AI Draft")
+            raise ValueError("Không tìm thấy yêu cầu AI Draft")
         return request
 
     def _require_result(self, result_id: int) -> dict[str, Any]:
         result = self.repository.get_result(result_id)
         if not result:
-            raise ValueError("Khong tim thay du thao AI")
+            raise ValueError("Không tìm thấy dự thảo AI")
         return result
 
     @staticmethod
     def _selected_type(request: dict[str, Any]) -> str:
         document_type = request.get("selected_document_type") or request.get("detected_document_type")
         if not document_type:
-            raise ValueError("Can nguoi dung chon loai van ban")
+            raise ValueError("Cần người dùng chọn loại văn bản")
         return str(document_type)
 
     @staticmethod

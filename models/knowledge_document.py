@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 import json
 
 from models.base import BaseModel
@@ -35,7 +36,7 @@ class KnowledgeDocument(BaseModel):
             raise ValueError("title là bắt buộc")
 
     @classmethod
-    def from_library_document(cls, document: dict) -> "KnowledgeDocument":
+    def from_library_document(cls, document: dict[str, Any]) -> "KnowledgeDocument":
         metadata = {
             key: document.get(key)
             for key in ("summary", "keywords", "issued_date", "issuing_agency", "signer", "file_ext", "checksum")

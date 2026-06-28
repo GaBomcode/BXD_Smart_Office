@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.6.0**
+Build hiện tại: **0.6.2**
 
 ## Chức năng chính
 
@@ -30,6 +30,23 @@ Thành phần chính:
 - Dự thảo ở trạng thái `pending_user_review`, người dùng xem/sửa/duyệt trước khi xuất DOCX.
 - Lưu lịch sử chỉnh sửa và audit log cho các mốc duyệt.
 - Menu Streamlit mới: `AI Soạn thảo`.
+
+## Build 0.6.1 - Audit & Polish
+
+Build 0.6.1 là bản rà soát và làm sạch trước Sprint 7, không thay đổi nghiệp vụ AI Draft.
+
+- Chuẩn hóa tiếng Việt giao diện AI Draft.
+- Bổ sung CI GitHub Actions.
+- Bổ sung smoke test router/UI.
+- Giữ nguyên nguyên tắc người dùng duyệt trước khi xuất DOCX.
+
+## Build 0.6.2 - Architecture Audit
+
+Build 0.6.2 rà soát kiến trúc trước Sprint 7, không thay đổi nghiệp vụ và không đổi workflow.
+
+- Audit Repository Layer, Service Layer, logging, type hint, import, dead code, requirements, migration và test.
+- Bổ sung báo cáo audit trong `docs/audit/` và `docs/ARCHITECTURE_AUDIT.md`.
+- Cập nhật version build và giữ nguyên nguyên tắc AI chỉ tham mưu, người dùng duyệt trước khi xuất DOCX.
 
 ## Sprint 4 - Build 0.4
 

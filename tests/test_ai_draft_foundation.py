@@ -99,7 +99,7 @@ def test_evidence_outline_draft_review_and_export(tmp_path: Path) -> None:
     result = service.repository.get_result(result_id)
     assert result is not None
     assert result["status"] == "pending_outline_review"
-    assert "Dan y" in str(result["outline_content"])
+    assert "Dàn ý" in str(result["outline_content"])
 
     with pytest.raises(ValueError):
         service.generate_draft(result_id)

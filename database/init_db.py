@@ -1,4 +1,6 @@
 from pathlib import Path
+import sqlite3
+
 from database.connection import get_connection
 from core.logger import get_logger
 
@@ -34,18 +36,18 @@ KPI_RULES = [
 ]
 
 
-def _columns(conn, table: str) -> set[str]:
+def _columns(conn: sqlite3.Connection, table: str) -> set[str]:
     return {row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
 
 
-def _safe_alter(conn, table: str, column_sql: str) -> None:
+def _safe_alter(conn: sqlite3.Connection, table: str, column_sql: str) -> None:
     column_name = column_sql.split()[0]
     if column_name not in _columns(conn, table):
         conn.execute(f"ALTER TABLE {table} ADD COLUMN {column_sql}")
 
 
 def migrate_database() -> None:
-    """Bổ sung cột mới khi nâng cấp từ Build 0.2/0.2.1 lên 0.2.2."""
+    """Bổ sung các cột tương thích khi nâng cấp database qua các build."""
     with get_connection() as conn:
         if "staff" in {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}:
             _safe_alter(conn, "staff", "system_role TEXT DEFAULT 'Chuyên viên'")
@@ -57,7 +59,7 @@ def migrate_database() -> None:
 
 
 
-def _existing_migrations(conn) -> set[str]:
+def _existing_migrations(conn: sqlite3.Connection) -> set[str]:
     """Lấy danh sách migration đã được ghi nhận."""
     conn.execute("""
         CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -70,7 +72,7 @@ def _existing_migrations(conn) -> set[str]:
     return {row[0] for row in conn.execute("SELECT version FROM schema_migrations").fetchall()}
 
 
-def run_sql_migrations(conn) -> None:
+def run_sql_migrations(conn: sqlite3.Connection) -> None:
     """Chạy các migration SQL idempotent trong database/migrations."""
     migrations_dir = Path(__file__).with_name("migrations")
     if not migrations_dir.exists():
@@ -105,4 +107,4 @@ def init_database() -> None:
 
 if __name__ == "__main__":
     init_database()
-    print("Database initialized successfully")
+    logger.info("Database initialized successfully")
