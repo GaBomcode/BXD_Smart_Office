@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.3.0**
+Build hiện tại: **0.5.1**
 
 ## Chức năng chính
 
@@ -12,6 +12,47 @@ Build hiện tại: **0.3.0**
 - Audit Log: nhật ký thao tác hệ thống.
 - Architecture Hardening: model nghiệp vụ, thư mục tài liệu/workspace, migration SQL nền.
 - Phân hệ 2: Soạn thảo văn bản theo mẫu, phân tích mẫu, sinh dự thảo chờ duyệt, xuất DOCX.
+- Phân hệ 3: Kho văn bản, quét thư mục nhiều tầng, lưu metadata và chuẩn bị nền index.
+- AI Knowledge Engine: chunk, keyword, relation, graph, embedding, semantic search có citation.
+
+## Sprint 4 - Build 0.4
+
+Kho văn bản thông minh bắt đầu từ nền chỉ mục: scan thư mục, đọc DOCX/PDF/XLSX/TXT, trích metadata rule-based, lưu SQLite, quản lý trạng thái và duyệt metadata trước khi dùng cho AI Search ở Sprint 5.
+
+Chạy kiểm thử:
+
+```bash
+python -m pytest -q
+```
+
+Chạy ứng dụng:
+
+```bash
+python -m streamlit run app/main.py
+```
+
+## Sprint 5 - Build 0.5
+
+AI Knowledge Engine là lõi tri thức offline của hệ thống. Sprint này không thêm Chat UI và không để AI tự ghi dữ liệu nghiệp vụ.
+
+Thành phần chính:
+
+- Chunk engine rule-based.
+- Keyword/entity engine rule-based.
+- Relation engine và knowledge graph SQLite.
+- Embedding backend có thể thay thế, gồm local deterministic backend và Ollama backend.
+- Semantic search Top K có score và citation.
+
+## Build 0.5.1 - AI Core Optimization
+
+Build tối ưu hóa Sprint 4 + Sprint 5:
+
+- Incremental indexing theo checksum.
+- Embedding cache để không gọi lại backend khi nội dung không đổi.
+- Rich citation sẵn cho UI Sprint sau.
+- Relation graph tránh trùng và có confidence.
+- Batch processing có progress callback.
+- Document Library tự đồng bộ Knowledge Engine khi thêm/sửa/xóa file.
 
 ## Cài đặt nhanh
 

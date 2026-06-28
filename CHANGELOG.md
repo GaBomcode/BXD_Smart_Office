@@ -1,5 +1,53 @@
 # CHANGELOG
 
+## Build 0.5.1 - AI Core Optimization
+
+### Added
+- Thêm migration `007_ai_core_optimization.sql`.
+- Thêm incremental indexing theo checksum.
+- Thêm `knowledge_embedding_cache` và `knowledge_index_state`.
+- Thêm embedding cache với `embedding_version`, `embedding_model`, `embedding_hash`.
+- Mở rộng citation semantic search thành object render-ready.
+- Tối ưu relation: unique relation, bidirectional flag, confidence.
+- Thêm batch processing, progress callback và đồng bộ Document Library -> Knowledge Engine.
+- Thêm performance tests với 100, 1000, 5000 file thật.
+
+### Notes
+- Không phát triển Sprint 6 trong build này.
+- Không thêm Chat UI, Agent hoặc AI Draft.
+
+## Build 0.5.0 - AI Knowledge Engine
+
+### Added
+- Thêm migration `006_ai_knowledge.sql` cho `knowledge_documents`, `knowledge_chunks`, `knowledge_entities`, `knowledge_relations`, `knowledge_jobs`, `knowledge_logs`.
+- Thêm model tri thức: `KnowledgeDocument`, `KnowledgeChunk`, `KnowledgeEntity`, `KnowledgeRelation`.
+- Thêm `KnowledgeRepository` và `KnowledgeService`.
+- Thêm chunk engine rule-based, keyword/entity engine, relation engine và knowledge graph SQLite.
+- Thêm embedding backend interface, local hash backend và Ollama backend local.
+- Thêm semantic search Top K có score và citation.
+- Thêm tài liệu `docs/BUILD_0_5_AI.md` và tests Sprint 5.
+
+### Notes
+- Không thêm Chat UI/chatbot/agent trong Sprint 5.
+- Không gọi API cloud.
+
+## Build 0.4.0 - Document Library Foundation
+
+### Added
+- Thêm phân hệ `Kho văn bản` trong sidebar.
+- Thêm migration `005_document_library.sql` cho `documents`, `document_keywords`, `document_relations`.
+- Thêm model `LibraryDocument`, `DocumentKeyword`, `DocumentRelation`.
+- Thêm `DocumentLibraryRepository` và `DocumentLibraryService`.
+- Thêm scanner metadata thư mục nhiều tầng, bỏ qua file tạm và nhận DOC/DOCX/PDF/XLS/XLSX/TXT.
+- Thêm reader chuẩn hóa cho DOCX, PDF, XLSX, TXT.
+- Thêm extractor rule-based cho số ký hiệu, ngày văn bản, cơ quan ban hành, loại văn bản, trích yếu, người ký, lĩnh vực, từ khóa.
+- Thêm persist index vào SQLite với trạng thái indexed/failed/need_ocr/need_review/duplicate/unsupported.
+- Thêm workflow duyệt metadata trên UI và audit log khi lưu duyệt.
+- Thêm test foundation, reader, extractor, indexing và review workflow.
+
+### Notes
+- Sprint 4 chỉ làm kho văn bản và index nền, chưa làm AI Search.
+
 ## Build 0.3.0 - Sprint 3 Document Module
 
 ### Added
