@@ -35,15 +35,32 @@ class KnowledgeRepository(BaseRepository):
     def create_document(self, document: KnowledgeDocument) -> int:
         return self.insert(self.DOCUMENT_TABLE, document.to_dict())
 
+    def save(self, document: KnowledgeDocument) -> int:
+        """Save or update a knowledge document by source document id."""
+        return self.upsert_document(document)
+
     def get_document(self, document_id: int) -> dict[str, Any] | None:
         return self.find(self.DOCUMENT_TABLE, document_id)
+
+    def get_by_document(self, document_id: int) -> dict[str, Any] | None:
+        """Fetch a knowledge document by document library id."""
+        return self.fetch_one(
+            f"""
+            SELECT * FROM {self.DOCUMENT_TABLE}
+            WHERE document_id=? OR library_document_id=?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (document_id, document_id),
+        )
 
     def get_by_library_document(self, library_document_id: int) -> dict[str, Any] | None:
         return self.fetch_one(f"SELECT * FROM {self.DOCUMENT_TABLE} WHERE library_document_id=?", (library_document_id,))
 
     def upsert_document(self, document: KnowledgeDocument) -> int:
-        if document.library_document_id:
-            existing = self.get_by_library_document(document.library_document_id)
+        source_id = document.document_id or document.library_document_id
+        if source_id:
+            existing = self.get_by_document(source_id)
             if existing:
                 self.update(self.DOCUMENT_TABLE, int(existing["id"]), document.to_dict())
                 return int(existing["id"])
@@ -54,6 +71,27 @@ class KnowledgeRepository(BaseRepository):
 
     def update_document(self, document_id: int, data: dict[str, Any]) -> int:
         return self.update(self.DOCUMENT_TABLE, document_id, data)
+
+    def exists(self, document_id: int) -> bool:
+        """Return true when a source document has a knowledge record."""
+        return self.get_by_document(document_id) is not None
+
+    def delete(self, document_id: int) -> int:  # type: ignore[override]
+        """Delete a knowledge document by source document id."""
+        existing = self.get_by_document(document_id)
+        if not existing:
+            return 0
+        return super().delete(self.DOCUMENT_TABLE, int(existing["id"]))
+
+    def list_invalid(self) -> list[dict[str, Any]]:
+        """List knowledge documents that failed integrity validation."""
+        return self.list(
+            self.DOCUMENT_TABLE,
+            where="status=?",
+            params=("INVALID",),
+            order_by="updated_at DESC, id DESC",
+            limit=None,
+        )
 
     def replace_chunks(self, document_id: int, chunks: list[KnowledgeChunk]) -> list[int]:
         self.execute(f"DELETE FROM {self.CHUNK_TABLE} WHERE document_id=?", (document_id,))

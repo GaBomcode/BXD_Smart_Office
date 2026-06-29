@@ -82,12 +82,28 @@ def run_sql_migrations(conn: sqlite3.Connection) -> None:
         version = path.stem
         if version in applied:
             continue
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        if "knowledge_documents" in tables:
+            _safe_alter(conn, "knowledge_documents", "document_id INTEGER")
+            _safe_alter(conn, "knowledge_documents", "full_text TEXT")
+            _safe_alter(conn, "knowledge_documents", "checksum TEXT")
+            _safe_alter(conn, "knowledge_documents", "chunk_count INTEGER NOT NULL DEFAULT 0")
+            _safe_alter(conn, "knowledge_documents", "embedding_version TEXT")
+            _safe_alter(conn, "knowledge_documents", "indexed_time TEXT")
         conn.executescript(path.read_text(encoding="utf-8"))
         conn.execute(
             "INSERT OR IGNORE INTO schema_migrations(version, name) VALUES(?, ?)",
             (version, path.name),
         )
         logger.info("Applied migration %s", path.name)
+    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    if "knowledge_documents" in tables:
+        _safe_alter(conn, "knowledge_documents", "document_id INTEGER")
+        _safe_alter(conn, "knowledge_documents", "full_text TEXT")
+        _safe_alter(conn, "knowledge_documents", "checksum TEXT")
+        _safe_alter(conn, "knowledge_documents", "chunk_count INTEGER NOT NULL DEFAULT 0")
+        _safe_alter(conn, "knowledge_documents", "embedding_version TEXT")
+        _safe_alter(conn, "knowledge_documents", "indexed_time TEXT")
 
 
 def init_database() -> None:

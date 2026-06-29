@@ -232,7 +232,14 @@ class DocumentLibraryService:
         """Đồng bộ một văn bản kho sang Knowledge Engine theo incremental checksum."""
         from services.knowledge_service import KnowledgeService
 
-        return KnowledgeService(library_repository=self.repository).ingest_library_document(library_document_id)
+        document = self.repository.get_document(library_document_id)
+        if not document:
+            raise ValueError("Khong tim thay van ban kho")
+        reader_result = self.read_document(str(document.get("file_path") or ""))
+        return KnowledgeService(library_repository=self.repository).ingest_library_document(
+            library_document_id,
+            text=reader_result.text,
+        )
 
     def sync_deleted_knowledge_documents(self) -> int:
         """Đồng bộ trạng thái xóa từ Document Library sang Knowledge Engine."""

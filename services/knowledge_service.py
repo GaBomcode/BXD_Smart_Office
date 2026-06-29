@@ -10,6 +10,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from math import sqrt
+from pathlib import Path
 from typing import Any, Callable, Iterable, Protocol
 import hashlib
 import json
@@ -25,6 +26,8 @@ from models.knowledge_relation import KnowledgeRelation
 from repositories.document_library_repository import DocumentLibraryRepository
 from repositories.knowledge_repository import KnowledgeRepository
 from services.chunk_service import ChunkEngine, ChunkService
+from services.knowledge.document_snapshot import DocumentSnapshot
+from services.knowledge.handoff_service import KnowledgeHandoffService, READY
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +145,7 @@ class KnowledgeService:
         self.library_repository = library_repository or DocumentLibraryRepository()
         self.embedding_backend = embedding_backend or LocalHashEmbeddingBackend()
         self.chunk_service = chunk_service or ChunkService()
+        self.handoff_service = KnowledgeHandoffService(repository=self.repository, chunk_service=self.chunk_service)
 
     def ingest_library_document(self, library_document_id: int, *, text: str | None = None) -> int:
         """Đưa một văn bản kho vào Knowledge Engine, chưa tự tạo nghiệp vụ mới."""
@@ -156,11 +160,12 @@ class KnowledgeService:
             and existing_knowledge
             and str(existing_state.get("checksum") or "") == checksum
             and str(existing_state.get("status") or "") == "indexed"
+            and str(existing_knowledge.get("full_text") or "").strip()
+            and str(existing_knowledge.get("status") or "") == READY
         ):
             logger.info("Skip unchanged knowledge document library_id=%s checksum=%s", library_document_id, checksum)
             return int(existing_knowledge["id"])
-        document_id = self.repository.upsert_document(KnowledgeDocument.from_library_document(source))
-        content = text or "\n".join(
+        content = text or self._read_source_text(source) or "\n".join(
             value
             for value in [
                 str(source.get("title") or ""),
@@ -170,8 +175,13 @@ class KnowledgeService:
             ]
             if value
         )
-        chunks = self.chunk_text(content)
-        self.chunk_service.replace_document_chunks(document_id, content, source_checksum=checksum)
+        snapshot = DocumentSnapshot.from_library_document(source, full_text=content)
+        result = self.handoff_service.handoff(snapshot)
+        document_id = result.knowledge_document_id
+        chunks = [
+            KnowledgeChunk(section=str(chunk.get("section") or "Nội dung"), text=str(chunk["text"]), token_count=int(chunk.get("token_count") or 0))
+            for chunk in self.repository.list_chunks(document_id)
+        ]
         entities = self.extract_entities(document_id, chunks, source)
         self.repository.replace_entities(document_id, entities)
         self.build_relations(document_id)
@@ -193,6 +203,27 @@ class KnowledgeService:
         )
         logger.info("Ingested library document id=%s as knowledge id=%s", library_document_id, document_id)
         return document_id
+
+    @staticmethod
+    def _read_source_text(source: dict[str, Any]) -> str:
+        path = Path(str(source.get("file_path") or ""))
+        if not path.exists() or not path.is_file():
+            return ""
+        try:
+            from services.readers import DocxReader, PdfReader, TxtReader, XlsxReader
+
+            ext = path.suffix.lower()
+            if ext in {".doc", ".docx"}:
+                return DocxReader().read(path).text
+            if ext == ".pdf":
+                return PdfReader().read(path).text
+            if ext in {".xls", ".xlsx"}:
+                return XlsxReader().read(path).text
+            if ext == ".txt":
+                return TxtReader().read(path).text
+        except Exception as exc:
+            logger.warning("Cannot read source text for knowledge handoff: %s", exc)
+        return ""
 
     def sync_from_library(
         self,
@@ -400,6 +431,8 @@ class KnowledgeService:
             vector = [float(value) for value in json.loads(str(embedding_json))]
             score = self.cosine_similarity(query_vector, vector)
             document = self.repository.get_document(int(chunk["document_id"])) or {}
+            if str(document.get("status") or "").upper() != READY:
+                continue
             metadata = self._metadata(document)
             results.append(
                 {
