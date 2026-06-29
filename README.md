@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.6.2**
+Build hiện tại: **0.7.1**
 
 ## Chức năng chính
 
@@ -15,6 +15,23 @@ Build hiện tại: **0.6.2**
 - Phân hệ 3: Kho văn bản, quét thư mục nhiều tầng, lưu metadata và chuẩn bị nền index.
 - AI Knowledge Engine: chunk, keyword, relation, graph, embedding, semantic search có citation.
 - AI Draft Engine: tham mưu soạn thảo theo Knowledge Engine, có citation và duyệt từng bước trước khi xuất DOCX.
+
+## Build 0.7.1 - Knowledge Metadata Engine
+
+Build 0.7.1 mở rộng AI Knowledge Engine bằng lớp metadata phụ trợ, không thay đổi nghiệp vụ và không đổi workflow người dùng.
+
+- Metadata Engine: chuẩn hóa metadata văn bản đã index.
+- Authority Engine: đánh giá mức thẩm quyền theo rule-based metadata.
+- Validity Engine: xác định trạng thái hiệu lực ở mức tham mưu, không khẳng định khi thiếu nguồn.
+- Relationship Engine V2: sinh quan hệ metadata độc lập với relation cũ.
+- Citation Metadata: làm giàu citation semantic search bằng authority, validity và nguồn.
+- Metadata Cache: tái sử dụng metadata theo checksum/hash.
+
+Tài liệu:
+
+- `docs/KNOWLEDGE_ENGINE.md`
+- `docs/KNOWLEDGE_METADATA.md`
+- `docs/KNOWLEDGE_SCHEMA.md`
 
 ## Sprint 6 - Build 0.6
 
