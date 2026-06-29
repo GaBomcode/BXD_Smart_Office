@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Build 0.7.1 - Knowledge Metadata Engine
+
+### Added
+- Thêm migration `009_knowledge_metadata_engine.sql`.
+- Thêm `KnowledgeMetadata`, `KnowledgeCitationMetadata`.
+- Thêm `KnowledgeMetadataService` với Metadata Engine, Authority Engine, Validity Engine, Relationship Engine V2, Citation Metadata và Metadata Cache.
+- Mở rộng `KnowledgeRepository` cho metadata, relationship V2, citation metadata và cache.
+- Thêm tests `tests/test_knowledge_metadata_engine.py`.
+- Thêm tài liệu `docs/KNOWLEDGE_ENGINE.md`, `docs/KNOWLEDGE_METADATA.md`, `docs/KNOWLEDGE_SCHEMA.md`.
+
+### Notes
+- Không thay đổi nghiệp vụ, UI hoặc workflow hiện có.
+- Không gọi API cloud.
+- AI Knowledge Metadata chỉ tham mưu và bổ sung ngữ cảnh citation.
+
 ## Build 0.6.2 - Architecture Audit
 
 - Thực hiện audit Repository Layer, Service Layer, logging, type hint, import, dead code, requirements, migration và test.

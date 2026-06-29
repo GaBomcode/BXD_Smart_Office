@@ -9,8 +9,10 @@ from models.document_template import DocumentTemplate
 from models.document_upload import DocumentUploadResult
 from models.kpi_rule import KpiRule
 from models.knowledge_chunk import KnowledgeChunk
+from models.knowledge_citation_metadata import KnowledgeCitationMetadata
 from models.knowledge_document import KnowledgeDocument
 from models.knowledge_entity import KnowledgeEntity
+from models.knowledge_metadata import KnowledgeMetadata
 from models.knowledge_relation import KnowledgeRelation
 from models.library_document import LibraryDocument
 from models.role import Role

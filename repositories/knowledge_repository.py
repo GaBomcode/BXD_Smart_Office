@@ -6,8 +6,10 @@ from typing import Any
 import logging
 
 from models.knowledge_chunk import KnowledgeChunk
+from models.knowledge_citation_metadata import KnowledgeCitationMetadata
 from models.knowledge_document import KnowledgeDocument
 from models.knowledge_entity import KnowledgeEntity
+from models.knowledge_metadata import KnowledgeMetadata
 from models.knowledge_relation import KnowledgeRelation
 from repositories.base_repository import BaseRepository
 
@@ -25,6 +27,10 @@ class KnowledgeRepository(BaseRepository):
     LOG_TABLE = "knowledge_logs"
     EMBEDDING_CACHE_TABLE = "knowledge_embedding_cache"
     INDEX_STATE_TABLE = "knowledge_index_state"
+    METADATA_TABLE = "knowledge_metadata"
+    RELATIONSHIP_V2_TABLE = "knowledge_relationship_v2"
+    CITATION_METADATA_TABLE = "knowledge_citation_metadata"
+    METADATA_CACHE_TABLE = "knowledge_metadata_cache"
 
     def create_document(self, document: KnowledgeDocument) -> int:
         return self.insert(self.DOCUMENT_TABLE, document.to_dict())
@@ -234,3 +240,95 @@ class KnowledgeRepository(BaseRepository):
             """,
             (library_document_id, knowledge_document_id, file_path, checksum, status, status, detail),
         )
+
+    def get_metadata(self, knowledge_document_id: int) -> dict[str, Any] | None:
+        return self.fetch_one(
+            f"SELECT * FROM {self.METADATA_TABLE} WHERE knowledge_document_id=?",
+            (knowledge_document_id,),
+        )
+
+    def upsert_metadata(self, metadata: KnowledgeMetadata) -> int:
+        if metadata.knowledge_document_id is None:
+            raise ValueError("knowledge_document_id la bat buoc")
+        existing = self.get_metadata(metadata.knowledge_document_id)
+        data = metadata.to_dict()
+        if existing:
+            self.update(self.METADATA_TABLE, int(existing["id"]), data)
+            return int(existing["id"])
+        return self.insert(self.METADATA_TABLE, data)
+
+    def list_metadata(self) -> list[dict[str, Any]]:
+        return self.list(self.METADATA_TABLE, order_by="updated_at DESC, id DESC", limit=None)
+
+    def replace_relationships_v2_for_document(self, document_id: int, relationships: list[dict[str, Any]]) -> list[int]:
+        self.execute(
+            f"DELETE FROM {self.RELATIONSHIP_V2_TABLE} WHERE source_knowledge_document_id=?",
+            (document_id,),
+        )
+        ids: list[int] = []
+        for relationship in relationships:
+            existing = self.fetch_one(
+                f"""
+                SELECT id FROM {self.RELATIONSHIP_V2_TABLE}
+                WHERE source_knowledge_document_id=? AND target_knowledge_document_id=? AND relation_type=?
+                """,
+                (
+                    relationship["source_knowledge_document_id"],
+                    relationship["target_knowledge_document_id"],
+                    relationship["relation_type"],
+                ),
+            )
+            if existing:
+                self.update(self.RELATIONSHIP_V2_TABLE, int(existing["id"]), relationship)
+                ids.append(int(existing["id"]))
+            else:
+                ids.append(self.insert(self.RELATIONSHIP_V2_TABLE, relationship))
+        return ids
+
+    def list_relationships_v2(self, document_id: int | None = None) -> list[dict[str, Any]]:
+        if document_id:
+            return self.list(
+                self.RELATIONSHIP_V2_TABLE,
+                where="source_knowledge_document_id=? OR target_knowledge_document_id=?",
+                params=(document_id, document_id),
+                order_by="confidence DESC, weight DESC, id DESC",
+                limit=None,
+            )
+        return self.list(self.RELATIONSHIP_V2_TABLE, order_by="confidence DESC, weight DESC, id DESC", limit=None)
+
+    def add_citation_metadata(self, citation: KnowledgeCitationMetadata) -> int:
+        return self.insert(self.CITATION_METADATA_TABLE, citation.to_dict())
+
+    def list_citation_metadata(self, *, query_text: str | None = None, limit: int | None = 50) -> list[dict[str, Any]]:
+        return self.list(
+            self.CITATION_METADATA_TABLE,
+            where="query_text=?" if query_text else None,
+            params=(query_text,) if query_text else (),
+            order_by="score DESC, id DESC",
+            limit=limit,
+        )
+
+    def get_metadata_cache(self, cache_key: str) -> dict[str, Any] | None:
+        return self.fetch_one(f"SELECT * FROM {self.METADATA_CACHE_TABLE} WHERE cache_key=?", (cache_key,))
+
+    def upsert_metadata_cache(
+        self,
+        *,
+        cache_key: str,
+        knowledge_document_id: int | None,
+        source_checksum: str | None,
+        metadata_hash: str,
+        payload_json: str,
+    ) -> int:
+        data = {
+            "cache_key": cache_key,
+            "knowledge_document_id": knowledge_document_id,
+            "source_checksum": source_checksum,
+            "metadata_hash": metadata_hash,
+            "payload_json": payload_json,
+        }
+        existing = self.get_metadata_cache(cache_key)
+        if existing:
+            self.update(self.METADATA_CACHE_TABLE, int(existing["id"]), data)
+            return int(existing["id"])
+        return self.insert(self.METADATA_CACHE_TABLE, data)
