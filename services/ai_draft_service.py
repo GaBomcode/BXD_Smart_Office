@@ -21,6 +21,7 @@ from models.ai_draft_request import AIDraftRequest
 from models.ai_draft_result import AIDraftResult
 from repositories.ai_draft_repository import AIDraftRepository
 from repositories.document_library_repository import DocumentLibraryRepository
+from services.document_validation.draft_validator import DraftValidator
 from services.document_service import DocumentService
 from services.knowledge_service import KnowledgeService
 
@@ -352,6 +353,12 @@ class AIDraftService:
         content = str(result.get("draft_content") or "").strip()
         if not content:
             raise ValueError("Dự thảo chưa có nội dung")
+        validation = DraftValidator(
+            repository=self.repository,
+            library_repository=self.library_repository,
+        ).validate(result)
+        if not validation.passed:
+            raise ValueError("Draft validation failed: " + "; ".join(validation.errors))
         try:
             from docx import Document
             from docx.enum.text import WD_ALIGN_PARAGRAPH
