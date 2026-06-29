@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## Build 0.7.4 - Vector Index Engine
+
+### Added
+- Them `VectorIndex` model.
+- Them `VectorRepository` cho bang `knowledge_vector_index`.
+- Them `VectorService` voi build/rebuild/refresh/delete vector index, batch operations, Top K va cosine similarity thuan Python.
+- Them migration `012_vector_index.sql` chi dung `CREATE TABLE IF NOT EXISTS` va `CREATE INDEX IF NOT EXISTS`.
+- Them cache skip khi vector checksum khong doi.
+- Them tests `tests/test_vector_engine.py` va `tests/test_vector_repository.py`.
+- Them tai lieu `docs/VECTOR_ENGINE.md` va `docs/VECTOR_SEARCH.md`.
+
+### Changed
+- Nang version len 0.7.4.
+
+### Notes
+- Khong trien khai Hybrid Search, Semantic Search, Ollama calls, AI Draft, Chat, Context Builder hoac Citation Retrieval trong build nay.
+- Vector index chay SQLite-only va khong them vector database dependency.
+
 ## Build 0.7.3 - Embedding Engine
 
 ### Added

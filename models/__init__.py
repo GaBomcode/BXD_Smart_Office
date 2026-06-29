@@ -22,6 +22,7 @@ from models.staff import Staff
 from models.task import Task
 from models.task_file import TaskFile
 from models.task_update import TaskUpdate
+from models.vector_index import VectorIndex
 from models.work_code import WorkCode
 from models.workspace import Workspace
 
@@ -46,6 +47,7 @@ __all__ = [
     "Task",
     "TaskFile",
     "TaskUpdate",
+    "VectorIndex",
     "WorkCode",
     "Workspace",
 ]

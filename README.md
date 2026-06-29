@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.7.3**
+Build hiện tại: **0.7.4**
 
 ## Chức năng chính
 
@@ -15,6 +15,22 @@ Build hiện tại: **0.7.3**
 - Phân hệ 3: Kho văn bản, quét thư mục nhiều tầng, lưu metadata và chuẩn bị nền index.
 - AI Knowledge Engine: chunk, keyword, relation, graph, embedding, semantic search có citation.
 - AI Draft Engine: tham mưu soạn thảo theo Knowledge Engine, có citation và duyệt từng bước trước khi xuất DOCX.
+
+## Build 0.7.4 - Vector Index Engine
+
+Build 0.7.4 them Vector Index layer de luu metadata vector, refresh index va truy van nearest-neighbour cap thap tren embedding da co.
+
+- Vector model `VectorIndex`.
+- Vector Repository quan ly `knowledge_vector_index`.
+- Vector Service build/rebuild/refresh/delete index.
+- Cosine similarity thuan Python va Top K: 1, 3, 5, 10.
+- Cache skip khi vector checksum khong doi.
+- Migration `012_vector_index.sql` chi dung `CREATE TABLE IF NOT EXISTS` va `CREATE INDEX IF NOT EXISTS`.
+
+Tai lieu:
+
+- `docs/VECTOR_ENGINE.md`
+- `docs/VECTOR_SEARCH.md`
 
 ## Build 0.7.3 - Embedding Engine
 
