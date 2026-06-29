@@ -1,6 +1,6 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.7.1**
+Build hiện tại: **0.7.3**
 
 ## Chức năng chính
 
@@ -15,6 +15,37 @@ Build hiện tại: **0.7.1**
 - Phân hệ 3: Kho văn bản, quét thư mục nhiều tầng, lưu metadata và chuẩn bị nền index.
 - AI Knowledge Engine: chunk, keyword, relation, graph, embedding, semantic search có citation.
 - AI Draft Engine: tham mưu soạn thảo theo Knowledge Engine, có citation và duyệt từng bước trước khi xuất DOCX.
+
+## Build 0.7.3 - Embedding Engine
+
+Build 0.7.3 them Embedding Engine doc lap theo Service Layer va Repository Pattern, luu vector cho chunk nhung chua trien khai semantic search hay hybrid search.
+
+- Embedding model `EmbeddingVector`.
+- Embedding Repository quan ly `knowledge_embeddings`.
+- Embedding Service tao vector cho mot chunk hoac batch chunks.
+- Deterministic local embedding backend cho test, khong goi external API.
+- Skip unchanged chunk theo checksum, regenerate khi chunk doi, mark failed embedding job.
+- Migration `011_embedding_engine.sql` chi dung `CREATE TABLE IF NOT EXISTS` va `CREATE INDEX IF NOT EXISTS`.
+
+Tai lieu:
+
+- `docs/EMBEDDING_ENGINE.md`
+- `docs/VECTOR_SCHEMA.md`
+
+## Build 0.7.2 - Chunk Engine
+
+Build 0.7.2 tach Chunk Engine thanh lop rieng theo Service Layer va Repository Pattern, phuc vu Knowledge Engine ma khong mo rong sang embedding hay semantic search.
+
+- Chunk Engine rule-based co token counting.
+- Chunk overlap co cau hinh va duoc ghi metadata.
+- Chunk Repository quan ly `knowledge_chunks` va `knowledge_chunk_metadata`.
+- Chunk Service la diem dung chung cho Knowledge Engine.
+- Migration `010_chunk_engine.sql` chi dung `CREATE TABLE IF NOT EXISTS` va `CREATE INDEX IF NOT EXISTS`.
+
+Tai lieu:
+
+- `docs/CHUNK_ENGINE.md`
+- `docs/CHUNK_SCHEMA.md`
 
 ## Build 0.7.1 - Knowledge Metadata Engine
 

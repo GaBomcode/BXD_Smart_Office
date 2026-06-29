@@ -7,8 +7,10 @@ from models.document_relation import DocumentRelation
 from models.document_section import DocumentSection
 from models.document_template import DocumentTemplate
 from models.document_upload import DocumentUploadResult
+from models.embedding_vector import EmbeddingVector
 from models.kpi_rule import KpiRule
 from models.knowledge_chunk import KnowledgeChunk
+from models.knowledge_chunk_metadata import KnowledgeChunkMetadata
 from models.knowledge_citation_metadata import KnowledgeCitationMetadata
 from models.knowledge_document import KnowledgeDocument
 from models.knowledge_entity import KnowledgeEntity
@@ -31,8 +33,10 @@ __all__ = [
     "DocumentSection",
     "DocumentTemplate",
     "DocumentUploadResult",
+    "EmbeddingVector",
     "KpiRule",
     "KnowledgeChunk",
+    "KnowledgeChunkMetadata",
     "KnowledgeDocument",
     "KnowledgeEntity",
     "KnowledgeRelation",

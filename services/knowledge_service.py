@@ -24,6 +24,7 @@ from models.knowledge_entity import KnowledgeEntity
 from models.knowledge_relation import KnowledgeRelation
 from repositories.document_library_repository import DocumentLibraryRepository
 from repositories.knowledge_repository import KnowledgeRepository
+from services.chunk_service import ChunkEngine, ChunkService
 
 logger = logging.getLogger(__name__)
 
@@ -135,10 +136,12 @@ class KnowledgeService:
         repository: KnowledgeRepository | None = None,
         library_repository: DocumentLibraryRepository | None = None,
         embedding_backend: EmbeddingBackend | None = None,
+        chunk_service: ChunkService | None = None,
     ) -> None:
         self.repository = repository or KnowledgeRepository()
         self.library_repository = library_repository or DocumentLibraryRepository()
         self.embedding_backend = embedding_backend or LocalHashEmbeddingBackend()
+        self.chunk_service = chunk_service or ChunkService()
 
     def ingest_library_document(self, library_document_id: int, *, text: str | None = None) -> int:
         """Đưa một văn bản kho vào Knowledge Engine, chưa tự tạo nghiệp vụ mới."""
@@ -168,9 +171,7 @@ class KnowledgeService:
             if value
         )
         chunks = self.chunk_text(content)
-        for chunk in chunks:
-            chunk.source_checksum = checksum
-        self.repository.replace_chunks(document_id, chunks)
+        self.chunk_service.replace_document_chunks(document_id, content, source_checksum=checksum)
         entities = self.extract_entities(document_id, chunks, source)
         self.repository.replace_entities(document_id, entities)
         self.build_relations(document_id)
@@ -243,21 +244,7 @@ class KnowledgeService:
 
     def chunk_text(self, text: str, *, max_tokens: int = 180) -> list[KnowledgeChunk]:
         """Tách văn bản thành chunk rule-based, không dùng AI."""
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        chunks: list[KnowledgeChunk] = []
-        current_section = "Nội dung"
-        buffer: list[str] = []
-        for line in lines:
-            detected = self.detect_section(line)
-            if detected and buffer:
-                chunks.extend(self._flush_chunks(current_section, buffer, max_tokens=max_tokens))
-                buffer = []
-            if detected:
-                current_section = detected
-            buffer.append(line)
-        if buffer:
-            chunks.extend(self._flush_chunks(current_section, buffer, max_tokens=max_tokens))
-        return chunks or [KnowledgeChunk(section="Nội dung", text=text.strip(), token_count=len(self.tokenize(text)))]
+        return self.chunk_service.chunk_text(text, max_tokens=max_tokens)
 
     def extract_entities(
         self,
@@ -541,7 +528,7 @@ class KnowledgeService:
 
     @staticmethod
     def tokenize(text: str) -> list[str]:
-        return re.findall(r"[0-9A-Za-zÀ-ỹ]+", text.lower())
+        return [token.lower() for token in ChunkEngine.tokenize(text)]
 
     @staticmethod
     def stopwords() -> set[str]:

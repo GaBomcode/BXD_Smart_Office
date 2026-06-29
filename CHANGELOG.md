@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## Build 0.7.3 - Embedding Engine
+
+### Added
+- Them `EmbeddingVector` model.
+- Them `EmbeddingRepository` cho bang `knowledge_embeddings`.
+- Them `EmbeddingService` voi deterministic local backend va interface cho future Ollama backend.
+- Them migration `011_embedding_engine.sql` chi dung `CREATE TABLE IF NOT EXISTS` va `CREATE INDEX IF NOT EXISTS`.
+- Them batch embedding, skip unchanged chunk theo checksum, regenerate khi chunk doi, va mark failed job.
+- Them tests `tests/test_embedding_engine.py` va `tests/test_embedding_repository.py`.
+- Them tai lieu `docs/EMBEDDING_ENGINE.md` va `docs/VECTOR_SCHEMA.md`.
+
+### Changed
+- Nang version len 0.7.3.
+
+### Notes
+- Khong trien khai semantic search, hybrid search, ranking engine, context builder, AI Assistant hoac AI Draft changes trong build nay.
+- Khong goi Ollama truc tiep tu UI.
+
+## Build 0.7.2 - Chunk Engine
+
+### Added
+- Them `ChunkEngine`, `ChunkService` va `ChunkRepository`.
+- Them metadata chunk voi `KnowledgeChunkMetadata` va bang `knowledge_chunk_metadata`.
+- Them token counting, token offsets va chunk overlap rule-based.
+- Them migration `010_chunk_engine.sql` chi dung `CREATE TABLE IF NOT EXISTS` va `CREATE INDEX IF NOT EXISTS`.
+- Them tests `tests/test_chunk_engine.py` va `tests/test_chunk_repository.py`.
+- Them tai lieu `docs/CHUNK_ENGINE.md` va `docs/CHUNK_SCHEMA.md`.
+
+### Changed
+- Cap nhat `KnowledgeService.chunk_text()` de dung Chunk Service.
+- Nang version len 0.7.2.
+
+### Notes
+- Khong trien khai embeddings, vector search, Ollama integration hoac semantic search trong build nay.
+
 ## Build 0.7.1 - Knowledge Metadata Engine
 
 ### Added
