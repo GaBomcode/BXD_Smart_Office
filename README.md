@@ -16,6 +16,24 @@ Build hiện tại: **0.7.4**
 - AI Knowledge Engine: chunk, keyword, relation, graph, embedding, semantic search có citation.
 - AI Draft Engine: tham mưu soạn thảo theo Knowledge Engine, có citation và duyệt từng bước trước khi xuất DOCX.
 
+## Current Completion Status
+
+Planning version: **0.7.5-planning**
+
+V1.0 completion status is frozen in:
+
+- `docs/MASTER_COMPLIANCE.md`
+- `docs/V1_0_COMPLETION_CHECKLIST.md`
+- `docs/BACKLOG_V1_0.md`
+- `docs/ROADMAP_LOCK.md`
+- `docs/TECHNICAL_DEBT_FINAL.md`
+
+Summary:
+
+- PASS: offline architecture, Streamlit shell, SQLite, Repository Pattern, Service Layer, Dashboard, Profile, Tasks, Workspace Lite, Document Drafting foundation, Knowledge backend layers, AI advisory boundary.
+- PARTIAL: Document Library full-text handoff, AI Search user workflow, AI Draft final evidence validation, advisory reports, V1.0 UI polish, release readiness.
+- MISSING: final packaging workflow and final V1.0 operator guide.
+
 ## Build 0.7.4 - Vector Index Engine
 
 Build 0.7.4 them Vector Index layer de luu metadata vector, refresh index va truy van nearest-neighbour cap thap tren embedding da co.
