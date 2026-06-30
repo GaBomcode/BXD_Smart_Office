@@ -1,9 +1,10 @@
 """Kiểm thử foundation phân hệ Kho văn bản Sprint 4."""
 
 from pathlib import Path
+import sqlite3
 
 from database.connection import get_connection
-from database.init_db import init_database
+from database.init_db import init_database, validate_schema
 from models import DocumentKeyword, DocumentRelation, LibraryDocument
 from repositories.document_library_repository import DocumentLibraryRepository
 from services.document_library_service import DocumentLibraryService
@@ -91,3 +92,43 @@ def test_folder_scanner_detects_new_existing_changed_and_ignored(tmp_path: Path)
     first.write_text("noi dung moi", encoding="utf-8")
     third = service.scan_folder(source)
     assert third.changed_files == 1
+
+
+def test_mark_missing_files_deleted_uses_resolved_path_ownership(tmp_path: Path) -> None:
+    init_database()
+    root = tmp_path / "library"
+    root.mkdir()
+    outside = tmp_path / "library-other" / "missing.txt"
+    repo = DocumentLibraryRepository()
+    document_id = repo.create_document(
+        LibraryDocument(
+            title="Outside prefix collision",
+            file_name="missing.txt",
+            file_path=str(outside),
+            file_ext=".txt",
+            file_size=1,
+            checksum="outside-checksum",
+            status="indexed",
+        )
+    )
+
+    deleted = DocumentLibraryService().mark_missing_files_deleted(root)
+    document = repo.get_document(document_id)
+
+    assert deleted == 0
+    assert document is not None
+    assert document["status"] == "indexed"
+
+
+def test_schema_validation_reports_missing_required_table() -> None:
+    conn = sqlite3.connect(":memory:")
+    try:
+        conn.execute("CREATE TABLE documents(id INTEGER PRIMARY KEY)")
+        try:
+            validate_schema(conn)
+        except RuntimeError as exc:
+            assert "Missing required table" in str(exc)
+        else:
+            raise AssertionError("schema validation should fail for partial schema")
+    finally:
+        conn.close()

@@ -6,6 +6,36 @@ import streamlit as st
 from services.document_library_service import DocumentLibraryService
 
 
+def _scan_rows(scan: dict) -> list[dict[str, object]]:
+    """Build readable scan rows without exposing raw JSON."""
+    return [
+        {
+            "TÃªn file": file.get("file_name"),
+            "Loáº¡i": file.get("file_ext"),
+            "KÃ­ch thÆ°á»›c": file.get("file_size"),
+            "Tráº¡ng thÃ¡i": file.get("state"),
+        }
+        for file in scan.get("files", [])
+    ]
+
+
+def _document_detail_rows(document: dict) -> list[dict[str, object]]:
+    """Build readable document detail rows."""
+    fields = {
+        "TiÃªu Ä‘á»": "title",
+        "Sá»‘ vÄƒn báº£n": "document_number",
+        "Loáº¡i vÄƒn báº£n": "document_type",
+        "NgÃ y ban hÃ nh": "issued_date",
+        "CÆ¡ quan ban hÃ nh": "issuing_agency",
+        "NgÆ°á»i kÃ½": "signer",
+        "TrÃ­ch yáº¿u": "summary",
+        "Tá»« khÃ³a": "keywords",
+        "Tráº¡ng thÃ¡i": "status",
+        "ÄÆ°á»ng dáº«n": "file_path",
+    }
+    return [{"ThÃ´ng tin": label, "GiÃ¡ trá»‹": document.get(key) or ""} for label, key in fields.items()]
+
+
 def render_document_library() -> None:
     """Giao diện Kho văn bản Sprint 4."""
     st.title("Phân hệ 3 - Kho văn bản")
@@ -28,7 +58,9 @@ def render_document_library() -> None:
                 cols[3].metric("Cần OCR", counts.get("need_ocr", 0))
                 cols[4].metric("Không hỗ trợ", counts.get("unsupported", 0))
                 cols[5].metric("Lỗi", counts.get("failed", 0))
-                st.json(result["scan"])
+                rows = _scan_rows(result["scan"])
+                if rows:
+                    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
             except Exception as exc:
                 st.error(f"Không thể quét thư mục: {exc}")
 
@@ -56,7 +88,11 @@ def render_document_library() -> None:
             st.dataframe(pd.DataFrame(documents), use_container_width=True, hide_index=True)
             detail_map = {f'{doc["id"]} - {doc["title"]}': doc for doc in documents}
             selected_detail = st.selectbox("Xem chi tiết", list(detail_map.keys()))
-            st.json(detail_map[selected_detail])
+            st.dataframe(
+                pd.DataFrame(_document_detail_rows(detail_map[selected_detail])),
+                use_container_width=True,
+                hide_index=True,
+            )
         else:
             st.info("Chưa có văn bản phù hợp.")
 

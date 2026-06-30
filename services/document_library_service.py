@@ -216,6 +216,8 @@ class DocumentLibraryService:
     def mark_missing_files_deleted(self, root_path: str | Path) -> int:
         """Đánh dấu các file từng index nhưng đã bị xóa khỏi thư mục nguồn."""
         root = Path(root_path).resolve()
+        if not root.exists() or not root.is_dir():
+            raise FileNotFoundError(f"Khong tim thay thu muc kho van ban: {root}")
         deleted = 0
         for document in self.repository.list_documents(limit=None):
             file_path = Path(str(document.get("file_path") or ""))
@@ -223,7 +225,11 @@ class DocumentLibraryService:
                 resolved = file_path.resolve()
             except OSError:
                 resolved = file_path
-            if str(resolved).startswith(str(root)) and not file_path.exists() and document.get("status") != "deleted":
+            if (
+                self._is_within_root(resolved, root)
+                and not resolved.exists()
+                and document.get("status") != "deleted"
+            ):
                 self.repository.update_document(int(document["id"]), {"status": "deleted"})
                 deleted += 1
         return deleted
@@ -329,3 +335,12 @@ class DocumentLibraryService:
     def _should_ignore(path: Path) -> bool:
         name = path.name.lower()
         return name.startswith("~$") or name in IGNORED_FILE_NAMES or path.suffix.lower() in IGNORED_SUFFIXES
+
+    @staticmethod
+    def _is_within_root(path: Path, root: Path) -> bool:
+        """Return true when a resolved path belongs to the resolved library root."""
+        try:
+            path.relative_to(root)
+            return True
+        except ValueError:
+            return False

@@ -13,47 +13,56 @@ This file merges existing audit findings and removes duplicate wording. It class
 
 ## Must Fix Before V1.0
 
+RC2-001 status: V1.0 blocker items are closed by implementation or release documentation. V1.1 deferrals remain unchanged.
+
 ### TD-V1-001 Full-text Knowledge handoff
 
 - Source audits: Build 0.5 LTS technical debt and master compliance audit.
 - Risk: AI Search and AI Draft evidence quality can be weak if Knowledge Engine receives only metadata.
 - Required V1.0 action: pass source document text from Document Library into Knowledge ingestion and preserve chunk lineage.
+- RC2-001 status: Closed by RC1 TD-V1-001 full-text handoff.
 
 ### TD-V1-002 Document Library path ownership safety
 
 - Source audits: `TECHNICAL_DEBT.md` TD-002.
 - Risk: string prefix path checks can misclassify files outside the intended library root.
 - Required V1.0 action: use resolved path ownership checks before marking missing files deleted.
+- RC2-001 status: Closed by resolved path ownership checks in Document Library cleanup.
 
 ### TD-V1-003 User-facing technical JSON in Document Library
 
 - Source audits: UI/UX audit and technical debt.
 - Risk: V1.0 users see implementation/debug details.
 - Required V1.0 action: replace JSON dumps with user-readable summaries/details.
+- RC2-001 status: Closed for Document Library scan and detail views.
 
 ### TD-V1-004 V1.0 schema validation / migration recovery note
 
 - Source audits: migration audit and architecture audit.
 - Risk: standard runner is safe, but manual partial migration recovery is not documented.
 - Required V1.0 action: add final schema validation or release checklist for required tables/indexes/columns.
+- RC2-001 status: Closed by `database.init_db.validate_schema` and `docs/SCHEMA_RELEASE_CHECKLIST.md`.
 
 ### TD-V1-005 AI Draft evidence validation after Knowledge fix
 
 - Source audits: master compliance audit and AI Draft build docs.
 - Risk: AI Draft quality depends on evidence retrieval quality.
 - Required V1.0 action: re-test AI Draft evidence/outline/export after full-text Knowledge handoff.
+- RC2-001 status: Closed by RC1-003 validation and regression test coverage.
 
 ### TD-V1-006 Release packaging and operator guide
 
 - Source audits: MASTER DESIGN final-stage technology and release readiness review.
 - Risk: V1.0 cannot be distributed or operated consistently.
 - Required V1.0 action: finalize offline package, init, backup, restore, index and export instructions.
+- RC2-001 status: Closed by `docs/RELEASE_OPERATOR_GUIDE.md`.
 
 ### TD-V1-007 Performance test CI strategy
 
 - Source audits: test audit and technical debt.
 - Risk: full test suite can be slow because performance tests create many files.
 - Required V1.0 action: decide and document whether performance tests remain in the normal release test command or move to a separate release profile.
+- RC2-001 status: Closed by `docs/PERFORMANCE_TEST_STRATEGY.md`.
 
 ## Move To V1.1
 

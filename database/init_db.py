@@ -6,6 +6,43 @@ from core.logger import get_logger
 
 logger = get_logger(__name__)
 
+REQUIRED_SCHEMA: dict[str, set[str]] = {
+    "documents": {"id", "title", "file_name", "file_path", "checksum", "status"},
+    "document_keywords": {"id", "document_id", "keyword", "weight"},
+    "ai_draft_requests": {"id", "request_text", "status"},
+    "ai_draft_results": {"id", "request_id", "title", "draft_content", "status"},
+    "ai_draft_citations": {"id", "request_id", "result_id", "source_document_id"},
+    "knowledge_documents": {
+        "id",
+        "document_id",
+        "title",
+        "full_text",
+        "checksum",
+        "status",
+    },
+    "knowledge_chunks": {"id", "document_id", "text", "chunk_order"},
+    "knowledge_embeddings": {
+        "id",
+        "chunk_id",
+        "document_id",
+        "vector_json",
+        "status",
+    },
+    "knowledge_vector_index": {
+        "id",
+        "embedding_id",
+        "chunk_id",
+        "document_id",
+        "is_active",
+    },
+    "knowledge_citation_metadata": {
+        "id",
+        "query_text",
+        "source_knowledge_document_id",
+    },
+    "schema_migrations": {"id", "version", "name", "applied_at"},
+}
+
 STAFF = [
     ("Nguyễn Trung Hiền", "Trưởng Ban", "Lãnh đạo điều hành", 1, "Trưởng Ban"),
     ("Phạm Duy Tân", "Phó Trưởng Ban", "Tổ chức xây dựng Đảng", 1, "Phó Ban"),
@@ -106,6 +143,21 @@ def run_sql_migrations(conn: sqlite3.Connection) -> None:
         _safe_alter(conn, "knowledge_documents", "indexed_time TEXT")
 
 
+def validate_schema(conn: sqlite3.Connection) -> None:
+    """Validate V1.0 critical tables and columns after migrations."""
+    tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    missing_tables = sorted(set(REQUIRED_SCHEMA).difference(tables))
+    if missing_tables:
+        raise RuntimeError("Missing required table(s): " + ", ".join(missing_tables))
+    missing_columns: list[str] = []
+    for table, required_columns in REQUIRED_SCHEMA.items():
+        existing_columns = _columns(conn, table)
+        for column in sorted(required_columns.difference(existing_columns)):
+            missing_columns.append(f"{table}.{column}")
+    if missing_columns:
+        raise RuntimeError("Missing required column(s): " + ", ".join(missing_columns))
+
+
 def init_database() -> None:
     schema_path = Path(__file__).with_name("schema.sql")
     with get_connection() as conn:
@@ -119,6 +171,7 @@ def init_database() -> None:
         conn.executemany("INSERT OR IGNORE INTO work_codes(code, axis, group_name, task_name, output_product, frequency, level, point, coefficient) VALUES(?,?,?,?,?,?,?,?,?)", WORK_CODES)
         conn.executemany("INSERT OR IGNORE INTO kpi_rules(name, level, point, coefficient, note) VALUES(?,?,?,?,?)", KPI_RULES)
         conn.execute("INSERT OR IGNORE INTO workspaces(name, description, field, status) VALUES(?,?,?,?)", ("Hồ sơ chung", "Nơi gom các nhiệm vụ chưa phân hồ sơ riêng", "Tổng hợp", "Đang xử lý"))
+        validate_schema(conn)
     logger.info("Database initialized and migrated")
 
 if __name__ == "__main__":
