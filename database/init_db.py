@@ -40,6 +40,14 @@ REQUIRED_SCHEMA: dict[str, set[str]] = {
         "query_text",
         "source_knowledge_document_id",
     },
+    "advisory_reports": {
+        "id",
+        "report_type",
+        "title",
+        "request_json",
+        "result_json",
+        "status",
+    },
     "schema_migrations": {"id", "version", "name", "applied_at"},
 }
 

@@ -17,6 +17,11 @@ from models.knowledge_entity import KnowledgeEntity
 from models.knowledge_metadata import KnowledgeMetadata
 from models.knowledge_relation import KnowledgeRelation
 from models.library_document import LibraryDocument
+from models.report_evidence import ReportEvidence
+from models.report_recommendation import ReportRecommendation
+from models.report_request import ReportRequest
+from models.report_result import ExportReadyReport, ReportResult, ReportValidationResult
+from models.report_section import ReportSection
 from models.role import Role
 from models.staff import Staff
 from models.task import Task
@@ -42,6 +47,13 @@ __all__ = [
     "KnowledgeEntity",
     "KnowledgeRelation",
     "LibraryDocument",
+    "ReportEvidence",
+    "ReportRecommendation",
+    "ReportRequest",
+    "ReportResult",
+    "ReportSection",
+    "ReportValidationResult",
+    "ExportReadyReport",
     "Role",
     "Staff",
     "Task",
