@@ -49,11 +49,14 @@ def _render_topbar(page: str) -> None:
         f"""
         <div class="bxd-topbar">
             <div class="bxd-topbar__left">
+                <div class="bxd-breadcrumb">BXD Smart Office / {page}</div>
                 <div class="bxd-topbar__title">{page}</div>
                 <div class="bxd-topbar__subtitle">{subtitle}</div>
             </div>
             <div class="bxd-topbar__actions">
-                <span class="bxd-ollama-badge">Ollama: offline</span>
+                <span class="bxd-date-pill">{datetime.now().strftime("%d/%m/%Y")}</span>
+                <span class="bxd-ollama-badge">Ollama Online</span>
+                <span class="bxd-sqlite-badge">SQLite Ready</span>
                 <span class="bxd-icon-button">!</span>
                 <span class="bxd-backup-pill">Sao lưu</span>
                 <div class="bxd-user-chip">
@@ -80,6 +83,18 @@ def render_router() -> None:
     st.sidebar.markdown(
         """
         <div class="bxd-menu-caption">HỆ THỐNG</div>
+        <div class="bxd-sidebar-menu-card">
+            <span>TK</span><strong>Tìm kiếm AI</strong>
+        </div>
+        <div class="bxd-sidebar-menu-card">
+            <span>HS</span><strong>Hồ sơ công việc</strong>
+        </div>
+        <div class="bxd-sidebar-menu-card">
+            <span>BC</span><strong>Báo cáo</strong>
+        </div>
+        <div class="bxd-sidebar-menu-card">
+            <span>CH</span><strong>Cấu hình</strong>
+        </div>
         <div class="bxd-sidebar-note">
             Nhân sự · Cấu hình · Sao lưu & phục hồi · Nhật ký hệ thống · Trợ giúp
         </div>

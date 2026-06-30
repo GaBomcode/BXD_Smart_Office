@@ -23,6 +23,11 @@ st.sidebar.markdown(
         </div>
     </div>
     <div class="bxd-version-badge">V1.0 LTS | v{APP_VERSION}</div>
+    <div class="bxd-sidebar-status-grid">
+        <span class="bxd-status-pill bxd-status-blue">Offline</span>
+        <span class="bxd-status-pill bxd-status-green">Ollama Ready</span>
+        <span class="bxd-status-pill bxd-status-purple">SQLite Ready</span>
+    </div>
     <div class="bxd-menu-caption">MENU CHÍNH</div>
     """,
     unsafe_allow_html=True,

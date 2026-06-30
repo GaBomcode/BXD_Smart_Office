@@ -17,6 +17,11 @@ def test_dashboard_css_asset_exists() -> None:
     assert "Segoe UI" in css
     assert ".bxd-ollama-badge" in css
     assert "min-height: 52px" in css
+    assert "UI Design System V2.0" in css
+    assert "#f4f7fb" in css
+    assert "width: 300px" in css
+    assert ".bxd-quick-actions" in css
+    assert ".bxd-kpi-teal" in css
 
 
 def test_dashboard_metric_card_imports() -> None:

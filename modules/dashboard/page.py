@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from datetime import date
 from html import escape
 from typing import Any
@@ -55,6 +56,28 @@ def _empty_state(title: str, guidance: str, icon: str = "i") -> None:
         """,
         unsafe_allow_html=True,
     )
+
+
+def _quick_actions() -> None:
+    """Render dashboard quick actions without changing workflow."""
+    actions = [
+        ("+", "Thêm nhiệm vụ"),
+        ("VB", "Soạn văn bản"),
+        ("PDF", "Nhập PDF"),
+        ("AI", "AI đọc văn bản"),
+        ("KV", "Kho văn bản"),
+        ("BC", "Báo cáo"),
+    ]
+    html = "".join(
+        f"""
+        <div class="bxd-quick-action">
+            <span>{escape(icon)}</span>
+            <strong>{escape(label)}</strong>
+        </div>
+        """
+        for icon, label in actions
+    )
+    st.markdown(f'<div class="bxd-quick-actions">{html}</div>', unsafe_allow_html=True)
 
 
 def _parse_date(value: Any) -> date | None:
@@ -119,31 +142,40 @@ def _render_staff_cards(kpi_rows: list[dict[str, Any]]) -> None:
             "KPI sẽ được tổng hợp sau khi nhiệm vụ được giao và cập nhật tiến độ.",
         )
         return
-    for row in kpi_rows[:6]:
-        name = str(row.get("full_name") or "Nhân sự")
-        position = escape(str(row.get("position") or row.get("field") or "Chưa cập nhật chức danh"))
-        progress = max(0, min(100, int(float(row.get("avg_progress") or 0))))
-        total = int(row.get("total_tasks") or 0)
-        completed = int(row.get("completed_tasks") or 0)
-        active = max(0, total - completed)
-        st.markdown(
-            f"""
-            <div class="bxd-staff-card">
-                <div class="bxd-staff-avatar">{escape(_staff_initials(name))}</div>
-                <div class="bxd-staff-card__body">
-                    <div class="bxd-staff-card__name">{escape(name)}</div>
-                    <div class="bxd-staff-card__meta">{position}</div>
-                    <div class="bxd-progress" aria-hidden="true">
-                        <span class="bxd-progress__bar" style="--progress: {progress}%"></span>
-                    </div>
-                    <div class="bxd-staff-card__meta">
-                        Tổng: {total} · Hoàn thành: {completed} · Đang xử lý: {active}
+    cols = st.columns(4)
+    for index, row in enumerate(kpi_rows[:8]):
+        with cols[index % 4]:
+            name = str(row.get("full_name") or "Nhân sự")
+            position = escape(
+                str(row.get("position") or row.get("field") or "Chưa cập nhật chức danh")
+            )
+            progress = max(0, min(100, int(float(row.get("avg_progress") or 0))))
+            total = int(row.get("total_tasks") or 0)
+            completed = int(row.get("completed_tasks") or 0)
+            overdue = int(row.get("overdue_tasks") or 0)
+            active = max(0, total - completed)
+            st.markdown(
+                f"""
+                <div class="bxd-staff-card bxd-business-card">
+                    <div class="bxd-staff-avatar">{escape(_staff_initials(name))}</div>
+                    <div class="bxd-staff-card__body">
+                        <div class="bxd-staff-card__name">{escape(name)}</div>
+                        <div class="bxd-staff-card__meta">{position}</div>
+                        <div class="bxd-progress" aria-hidden="true">
+                            <span class="bxd-progress__bar" style="--progress: {progress}%"></span>
+                        </div>
+                        <div class="bxd-staff-card__meta">{progress}% hoàn thành trung bình</div>
+                        <div class="bxd-staff-stat-grid">
+                            <span>Tổng <strong>{total}</strong></span>
+                            <span>Xong <strong>{completed}</strong></span>
+                            <span>Đang <strong>{active}</strong></span>
+                            <span>Quá hạn <strong>{overdue}</strong></span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 def _render_field_progress(tasks: list[dict[str, Any]]) -> None:
@@ -213,6 +245,73 @@ def _render_monthly_progress(tasks: list[dict[str, Any]]) -> None:
     )
 
 
+def _render_task_status_chart(tasks: list[dict[str, Any]]) -> None:
+    """Render a compact task status chart."""
+    counts = Counter(str(task.get("status") or "Chưa cập nhật") for task in tasks)
+    if not counts:
+        _empty_state(
+            "Chưa có dữ liệu trạng thái",
+            "Biểu đồ sẽ hiển thị khi có nhiệm vụ trong hệ thống.",
+        )
+        return
+    chart = pd.DataFrame(
+        [{"Trạng thái": key, "Số nhiệm vụ": value} for key, value in counts.items()]
+    ).set_index("Trạng thái")
+    st.bar_chart(chart, use_container_width=True, height=210)
+
+
+def _render_field_distribution_chart(tasks: list[dict[str, Any]]) -> None:
+    """Render task distribution by field."""
+    counts = Counter(str(task.get("field") or "Chưa phân loại") for task in tasks)
+    if not counts:
+        _empty_state("Chưa có dữ liệu lĩnh vực", "Biểu đồ lĩnh vực sẽ xuất hiện khi có nhiệm vụ.")
+        return
+    chart = pd.DataFrame(
+        [{"Lĩnh vực": key, "Số nhiệm vụ": value} for key, value in counts.most_common(8)]
+    ).set_index("Lĩnh vực")
+    st.bar_chart(chart, use_container_width=True, height=210)
+
+
+def _render_staff_kpi_chart(kpi_rows: list[dict[str, Any]]) -> None:
+    """Render staff KPI chart."""
+    if not kpi_rows:
+        _empty_state("Chưa có KPI nhân sự", "KPI sẽ hiển thị khi có nhiệm vụ được giao.")
+        return
+    chart = pd.DataFrame(
+        [
+            {
+                "Nhân sự": row.get("full_name") or "Nhân sự",
+                "Tiến độ TB": float(row.get("avg_progress") or 0),
+            }
+            for row in kpi_rows[:8]
+        ]
+    ).set_index("Nhân sự")
+    st.bar_chart(chart, use_container_width=True, height=210)
+
+
+def _render_document_growth_chart(documents: list[dict[str, Any]]) -> None:
+    """Render document growth from available metadata timestamps."""
+    buckets: Counter[str] = Counter()
+    for document in documents:
+        raw_date = (
+            document.get("indexed_at")
+            or document.get("created_at")
+            or document.get("updated_at")
+            or "Chưa rõ"
+        )
+        buckets[str(raw_date)[:7]] += 1
+    if not buckets:
+        _empty_state(
+            "Chưa có dữ liệu văn bản",
+            "Khi kho văn bản có metadata, biểu đồ tăng trưởng sẽ hiển thị.",
+        )
+        return
+    chart = pd.DataFrame(
+        [{"Tháng": key, "Văn bản": value} for key, value in sorted(buckets.items())]
+    ).set_index("Tháng")
+    st.line_chart(chart, use_container_width=True, height=210)
+
+
 def _render_documents() -> None:
     """Render recently updated document metadata."""
     documents = DocumentLibraryService().list_documents(limit=5)
@@ -229,6 +328,33 @@ def _render_documents() -> None:
                     {escape(str(document.get("document_number") or "Chưa có số"))}
                     · {escape(str(document.get("document_type") or "Chưa phân loại"))}
                     · {escape(str(document.get("status") or "unknown"))}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def _render_ai_suggestions(service: TaskService) -> None:
+    """Render existing offline AI suggestions."""
+    suggestions = service.list_ai_suggestions(None)[:5]
+    if not suggestions:
+        _empty_state(
+            "Chưa có AI gợi ý",
+            "Các đề xuất offline đã được lưu sẽ xuất hiện tại đây để người dùng xem nhanh.",
+            icon="AI",
+        )
+        return
+    for suggestion in suggestions:
+        title = suggestion.get("suggested_title") or suggestion.get("title") or "Gợi ý AI"
+        priority = suggestion.get("suggested_priority") or "Bình thường"
+        status = suggestion.get("status") or "Chờ duyệt"
+        st.markdown(
+            f"""
+            <div class="bxd-list-card">
+                <div class="bxd-list-card__title">{escape(str(title))}</div>
+                <div class="bxd-list-card__meta">
+                    {escape(str(status))} · {escape(str(priority))}
                 </div>
             </div>
             """,
@@ -265,9 +391,12 @@ def _render_recent_activity(service: TaskService) -> None:
 def render_dashboard() -> None:
     """Render the executive dashboard."""
     _page_hero()
+    _quick_actions()
     service = TaskService()
     stats = service.get_stats()
     tasks = service.list_tasks(keyword=None)
+    staff_kpi = service.get_kpi_by_staff()
+    documents = DocumentLibraryService().list_documents(limit=30)
     today = date.today()
 
     active_tasks = [task for task in tasks if not _is_completed(task)]
@@ -283,7 +412,7 @@ def render_dashboard() -> None:
         if (deadline := _parse_date(task.get("deadline"))) and (today - deadline).days > 0
     ]
 
-    cols = st.columns(5)
+    cols = st.columns(6)
     metric_card(
         cols[0],
         "Tổng nhiệm vụ",
@@ -322,10 +451,19 @@ def render_dashboard() -> None:
     )
     metric_card(
         cols[4],
+        "Hoàn thành",
+        int(stats.get("done") or 0),
+        help_text="Đã xử lý",
+        variant="green",
+        icon="OK",
+        progress=100,
+    )
+    metric_card(
+        cols[5],
         "Tiến độ TB",
         f"{stats.get('avg_progress') or 0}%",
         help_text="Hiệu suất chung",
-        variant="green",
+        variant="teal",
         icon="PT",
         progress=int(stats.get("avg_progress") or 0),
     )
@@ -374,13 +512,29 @@ def render_dashboard() -> None:
     staff_col, month_col = st.columns(2)
     with staff_col:
         _section_title("KPI nhân sự")
-        _render_staff_cards(service.get_kpi_by_staff())
+        _render_staff_kpi_chart(staff_kpi)
 
     with month_col:
         _section_title("Tiến độ nhiệm vụ theo tháng")
         _render_monthly_progress(tasks)
 
-    field_col, doc_col, activity_col = st.columns(3)
+    status_col, field_chart_col, document_chart_col = st.columns(3)
+    with status_col:
+        _section_title("Task Status")
+        _render_task_status_chart(tasks)
+
+    with field_chart_col:
+        _section_title("Field Distribution")
+        _render_field_distribution_chart(tasks)
+
+    with document_chart_col:
+        _section_title("Document Growth")
+        _render_document_growth_chart(documents)
+
+    _section_title("Nhân sự")
+    _render_staff_cards(staff_kpi)
+
+    field_col, doc_col, activity_col, ai_col = st.columns(4)
     with field_col:
         _section_title("Tiến độ theo lĩnh vực")
         _render_field_progress(tasks)
@@ -393,12 +547,13 @@ def render_dashboard() -> None:
         _section_title("Hoạt động gần đây")
         _render_recent_activity(service)
 
+    with ai_col:
+        _section_title("AI gợi ý")
+        _render_ai_suggestions(service)
+
     if tasks:
-        _section_title("Bảng nhiệm vụ tổng hợp")
-        st.dataframe(
-            pd.DataFrame(tasks)[
-                ["id", "title", "assigned_to", "deadline", "priority", "status", "progress"]
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
+        _section_title("Nhiệm vụ tổng hợp")
+        summary_cols = st.columns(3)
+        for index, task in enumerate(tasks[:6]):
+            with summary_cols[index % 3]:
+                st.markdown(_task_card(task), unsafe_allow_html=True)
