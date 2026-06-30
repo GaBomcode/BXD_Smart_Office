@@ -178,6 +178,41 @@ def _render_field_progress(tasks: list[dict[str, Any]]) -> None:
         )
 
 
+def _render_monthly_progress(tasks: list[dict[str, Any]]) -> None:
+    """Render progress for tasks due in the current month."""
+    current_month = date.today().strftime("%Y-%m")
+    month_tasks = [
+        task
+        for task in tasks
+        if str(task.get("deadline") or "").startswith(current_month)
+    ]
+    if not month_tasks:
+        _empty_state(
+            "Chưa có tiến độ trong tháng",
+            "Các nhiệm vụ có hạn trong tháng hiện tại sẽ được tổng hợp tại đây.",
+        )
+        return
+    progress = int(sum(int(task.get("progress") or 0) for task in month_tasks) / len(month_tasks))
+    completed = sum(1 for task in month_tasks if _is_completed(task))
+    active = len(month_tasks) - completed
+    summary = (
+        f"{progress}% · Tổng: {len(month_tasks)} · "
+        f"Hoàn thành: {completed} · Đang xử lý: {active}"
+    )
+    st.markdown(
+        f"""
+        <div class="bxd-list-card bxd-month-card">
+            <div class="bxd-list-card__title">Tiến độ nhiệm vụ theo tháng</div>
+            <div class="bxd-progress" aria-hidden="true">
+                <span class="bxd-progress__bar" style="--progress: {progress}%"></span>
+            </div>
+            <div class="bxd-list-card__meta">{summary}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _render_documents() -> None:
     """Render recently updated document metadata."""
     documents = DocumentLibraryService().list_documents(limit=5)
@@ -336,16 +371,20 @@ def render_dashboard() -> None:
                 "Các cảnh báo quá hạn sẽ được hiển thị rõ tại đây.",
             )
 
-    staff_col, field_col = st.columns(2)
+    staff_col, month_col = st.columns(2)
     with staff_col:
         _section_title("KPI nhân sự")
         _render_staff_cards(service.get_kpi_by_staff())
 
+    with month_col:
+        _section_title("Tiến độ nhiệm vụ theo tháng")
+        _render_monthly_progress(tasks)
+
+    field_col, doc_col, activity_col = st.columns(3)
     with field_col:
         _section_title("Tiến độ theo lĩnh vực")
         _render_field_progress(tasks)
 
-    doc_col, activity_col = st.columns(2)
     with doc_col:
         _section_title("Văn bản mới cập nhật")
         _render_documents()

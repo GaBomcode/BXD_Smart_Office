@@ -14,6 +14,9 @@ def test_dashboard_css_asset_exists() -> None:
     assert ".bxd-sidebar-brand" in css
     assert "--bxd-primary" in css
     assert "#2563eb" in css
+    assert "Segoe UI" in css
+    assert ".bxd-ollama-badge" in css
+    assert "min-height: 52px" in css
 
 
 def test_dashboard_metric_card_imports() -> None:

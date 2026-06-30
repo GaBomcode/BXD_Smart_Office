@@ -614,3 +614,317 @@ div[data-baseweb="select"] > div {
         justify-content: flex-start;
     }
 }
+
+/* Premium V1.0 polish: Microsoft 365 / Windows 11 inspired refinements. */
+html,
+body,
+.stApp,
+[class*="css"] {
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+    --bxd-bg: #f7faff;
+    --bxd-surface: #ffffff;
+    --bxd-surface-glass: rgba(255, 255, 255, 0.86);
+    --bxd-border: #e6edf7;
+    --bxd-shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+    --bxd-shadow-soft: 0 10px 26px rgba(15, 23, 42, 0.07);
+    --bxd-radius: 18px;
+}
+
+header[data-testid="stHeader"] {
+    background: transparent;
+    height: 0;
+}
+
+header[data-testid="stHeader"] * {
+    color: var(--bxd-muted);
+}
+
+.block-container {
+    max-width: 1540px;
+    padding-top: 0.8rem;
+}
+
+section[data-testid="stSidebar"] {
+    background: #ffffff;
+}
+
+section[data-testid="stSidebar"] > div {
+    padding-top: 0.9rem;
+}
+
+.bxd-sidebar-brand {
+    margin: 0.1rem 0 0.55rem;
+    padding: 0.72rem;
+    border-color: #dbeafe;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.92));
+}
+
+.bxd-sidebar-logo {
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+}
+
+.bxd-version-badge {
+    padding: 0.18rem 0.52rem;
+    font-size: 0.72rem;
+}
+
+.bxd-menu-caption {
+    margin: 0.85rem 0 0.25rem;
+}
+
+div[role="radiogroup"] label {
+    min-height: 2.18rem;
+    padding: 0.32rem 0.48rem;
+    margin: 0.08rem 0;
+}
+
+div[role="radiogroup"] label p {
+    font-size: 0.9rem;
+}
+
+div[role="radiogroup"] label:hover {
+    background: var(--bxd-primary-light);
+}
+
+div[role="radiogroup"] label:has(input:checked) {
+    border-color: #bfdbfe;
+    box-shadow: inset 4px 0 0 var(--bxd-primary), 0 6px 16px rgba(37, 99, 235, 0.08);
+}
+
+.bxd-sidebar-note {
+    margin-top: 0.65rem;
+    padding: 0.7rem;
+    background: #f8fbff;
+    font-size: 0.8rem;
+}
+
+.bxd-topbar {
+    min-height: 52px;
+    margin: 0 0 0.85rem;
+    padding: 0.42rem 0.72rem;
+    border-color: rgba(226, 232, 240, 0.9);
+    background: var(--bxd-surface-glass);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(14px);
+}
+
+.bxd-topbar__left {
+    min-width: 0;
+}
+
+.bxd-topbar__title {
+    font-size: 1.02rem;
+    line-height: 1.12;
+}
+
+.bxd-topbar__subtitle {
+    margin-top: 0.1rem;
+    color: var(--bxd-muted);
+    font-size: 0.78rem;
+    line-height: 1.1;
+}
+
+.bxd-topbar__actions {
+    gap: 0.42rem;
+}
+
+.bxd-ollama-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.9rem;
+    padding: 0 0.62rem;
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    background: var(--bxd-success-light);
+    color: #047857;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.bxd-icon-button,
+.bxd-backup-pill {
+    min-height: 1.95rem;
+    border-radius: 999px;
+}
+
+.bxd-icon-button {
+    width: 1.95rem;
+}
+
+.bxd-backup-pill {
+    padding: 0 0.68rem;
+}
+
+.bxd-user-chip {
+    min-height: 2rem;
+    padding: 0.2rem 0.38rem;
+    border-radius: 999px;
+}
+
+.bxd-avatar {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.78rem;
+}
+
+.bxd-user-chip strong {
+    font-size: 0.78rem;
+}
+
+.bxd-user-chip small {
+    font-size: 0.7rem;
+}
+
+.bxd-page-hero {
+    padding: 0.95rem 1.05rem;
+    margin-bottom: 0.9rem;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+}
+
+.bxd-page-hero__eyebrow {
+    font-size: 0.72rem;
+}
+
+.bxd-page-hero__title {
+    font-size: clamp(2.1rem, 2.45vw, 2.5rem);
+}
+
+.bxd-page-hero__subtitle {
+    margin-top: 0.25rem;
+    font-size: 0.94rem;
+}
+
+.bxd-section-title {
+    margin: 1rem 0 0.45rem;
+    font-size: 1.22rem;
+}
+
+.bxd-kpi-card {
+    min-height: 9.7rem;
+    padding: 1rem 1.05rem;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.92), transparent 42%),
+        linear-gradient(145deg, #ffffff, var(--accent-bg));
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.bxd-kpi-card:hover {
+    transform: translateY(-3px);
+}
+
+.bxd-kpi-card__icon {
+    width: 2.45rem;
+    height: 2.45rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.bxd-kpi-card__title {
+    font-size: 0.86rem;
+}
+
+.bxd-kpi-card__value {
+    margin-top: 0.7rem;
+    font-size: clamp(2.75rem, 3.35vw, 3.45rem);
+    letter-spacing: 0;
+}
+
+.bxd-kpi-card__hint {
+    font-size: 0.82rem;
+}
+
+.bxd-list-card,
+.bxd-staff-card,
+.bxd-document-card {
+    padding: 0.78rem;
+    border-radius: 16px;
+    box-shadow: 0 9px 22px rgba(15, 23, 42, 0.06);
+}
+
+.bxd-staff-card {
+    break-inside: avoid;
+}
+
+.bxd-staff-avatar {
+    width: 2.35rem;
+    height: 2.35rem;
+}
+
+.bxd-staff-card__name,
+.bxd-list-card__title,
+.bxd-document-card__title {
+    font-size: 0.94rem;
+}
+
+.bxd-staff-card__meta,
+.bxd-list-card__meta,
+.bxd-document-card__meta {
+    font-size: 0.8rem;
+}
+
+.bxd-progress {
+    height: 0.42rem;
+    margin-top: 0.7rem;
+}
+
+.bxd-empty-state {
+    padding: 0.95rem;
+    border: 1px dotted #93c5fd;
+    border-radius: 16px;
+    background:
+        linear-gradient(145deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.92));
+}
+
+.bxd-empty-state__icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+}
+
+.bxd-empty-state__body {
+    font-size: 0.84rem;
+}
+
+div[data-testid="stDataFrame"] {
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+div[data-testid="stDataFrame"] [role="columnheader"] {
+    background: #eff6ff;
+    color: var(--bxd-primary);
+}
+
+div[data-testid="stDataFrame"] [role="row"]:hover [role="gridcell"] {
+    background: #f8fbff;
+}
+
+div[data-testid="stForm"],
+div[data-testid="stExpander"] {
+    border-radius: 16px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    border-radius: 999px;
+}
+
+.stButton > button,
+.stDownloadButton > button,
+button[kind="primary"] {
+    min-height: 2.2rem;
+    border-radius: 999px;
+}
+
+@media (max-width: 1200px) {
+    .bxd-kpi-card__value {
+        font-size: 2.45rem;
+    }
+}
