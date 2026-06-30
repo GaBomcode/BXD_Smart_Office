@@ -1,6 +1,17 @@
 # BXD Smart Office - Offline
 
-Build hiện tại: **0.7.4**
+Current release: **V1.0.0 LTS**
+
+Release preparation:
+
+- Windows packaging: `build_release.ps1`
+- Verification: `python verify_release.py`
+- Install guide: `INSTALL.md`
+- Build guide: `BUILD.md`
+- Deployment checklist: `DEPLOYMENT_CHECKLIST.md`
+- Release notes: `RELEASE_NOTES_V1_0.md`
+
+Build hiện tại: **V1.0.0 LTS**
 
 ## Chức năng chính
 
@@ -18,7 +29,7 @@ Build hiện tại: **0.7.4**
 
 ## Current Completion Status
 
-Planning version: **0.7.5-planning**
+Release version: **V1.0.0 LTS**
 
 V1.0 completion status is frozen in:
 
@@ -30,9 +41,9 @@ V1.0 completion status is frozen in:
 
 Summary:
 
-- PASS: offline architecture, Streamlit shell, SQLite, Repository Pattern, Service Layer, Dashboard, Profile, Tasks, Workspace Lite, Document Drafting foundation, Knowledge backend layers, AI advisory boundary.
-- PARTIAL: Document Library full-text handoff, AI Search user workflow, AI Draft final evidence validation, advisory reports, V1.0 UI polish, release readiness.
-- MISSING: final packaging workflow and final V1.0 operator guide.
+- PASS: offline architecture, Streamlit shell, SQLite, Repository Pattern, Service Layer, Dashboard, Profile, Tasks, Workspace Lite, Document Drafting, Document Library full-text handoff, Knowledge backend layers, AI Search, AI Draft final validation, Advisory Report Engine and release verification.
+- RELEASE READY: Windows packaging scripts, install guide, build guide, deployment checklist and V1.0 release notes are included.
+- OPERATOR GATE: run `python verify_release.py` and `python -m pytest -q` before production handoff.
 
 ## Build 0.7.4 - Vector Index Engine
 

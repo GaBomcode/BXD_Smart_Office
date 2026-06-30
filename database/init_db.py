@@ -2,6 +2,7 @@ from pathlib import Path
 import sqlite3
 
 from database.connection import get_connection
+from core.config import RESOURCE_DIR
 from core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -119,7 +120,7 @@ def _existing_migrations(conn: sqlite3.Connection) -> set[str]:
 
 def run_sql_migrations(conn: sqlite3.Connection) -> None:
     """Chạy các migration SQL idempotent trong database/migrations."""
-    migrations_dir = Path(__file__).with_name("migrations")
+    migrations_dir = RESOURCE_DIR / "database" / "migrations"
     if not migrations_dir.exists():
         return
     applied = _existing_migrations(conn)
@@ -167,7 +168,7 @@ def validate_schema(conn: sqlite3.Connection) -> None:
 
 
 def init_database() -> None:
-    schema_path = Path(__file__).with_name("schema.sql")
+    schema_path = RESOURCE_DIR / "database" / "schema.sql"
     with get_connection() as conn:
         conn.executescript(schema_path.read_text(encoding="utf-8"))
         migrate_database()

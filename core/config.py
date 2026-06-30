@@ -1,6 +1,24 @@
 from pathlib import Path
+import sys
 
-BASE_DIR = Path(__file__).resolve().parents[1]
+
+def _runtime_base_dir() -> Path:
+    """Return the writable runtime base directory."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[1]
+
+
+def _resource_base_dir() -> Path:
+    """Return the bundled read-only resource directory."""
+    bundled = getattr(sys, "_MEIPASS", None)
+    if bundled:
+        return Path(str(bundled)).resolve()
+    return Path(__file__).resolve().parents[1]
+
+
+BASE_DIR = _runtime_base_dir()
+RESOURCE_DIR = _resource_base_dir()
 DATA_DIR = BASE_DIR / "database"
 DB_PATH = DATA_DIR / "bxd_smart_office.db"
 LOG_DIR = BASE_DIR / "logs"

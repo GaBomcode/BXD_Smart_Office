@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## Version 1.0.0 LTS - Release Packaging and Verification
+
+### Added
+- Added Windows PyInstaller build scripts for one-folder and one-file packaging.
+- Added release verification script for database, migrations, runtime directories and service smoke checks.
+- Added V1.0 release notes, install guide, build guide and deployment checklist.
+
+### Changed
+- Updated version constants to V1.0.0 LTS.
+- Updated runtime path handling for packaged builds.
+
+### Notes
+- No business workflow changes.
+- No database redesign.
+- Release preparation only.
+
 ## Version 0.7.5-planning - Sprint A0 Gap Analysis
 
 ### Added
