@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -16,8 +17,35 @@ apply_theme()
 st.sidebar.markdown(
     f"""
     <div class="bxd-sidebar-brand">
-        <div class="bxd-sidebar-brand__title">BXD Smart Office</div>
-        <div class="bxd-version-badge">{BUILD_NAME} | v{APP_VERSION}</div>
+        <div class="bxd-sidebar-logo">BX</div>
+        <div>
+            <div class="bxd-sidebar-brand__title">BXD Smart Office</div>
+            <div class="bxd-sidebar-brand__subtitle">Offline Office System</div>
+        </div>
+    </div>
+    <div class="bxd-version-badge">{BUILD_NAME} | v{APP_VERSION}</div>
+    <div class="bxd-menu-caption">MENU CHÍNH</div>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown(
+    f"""
+    <div class="bxd-topbar">
+        <div>
+            <div class="bxd-topbar__eyebrow">Ban Xây dựng Đảng</div>
+            <div class="bxd-topbar__title">{APP_NAME}</div>
+        </div>
+        <div class="bxd-topbar__actions">
+            <span class="bxd-icon-button">!</span>
+            <span class="bxd-backup-pill">Sao lưu</span>
+            <div class="bxd-user-chip">
+                <span class="bxd-avatar">NH</span>
+                <span>
+                    <strong>Nguyễn Trung Hiền</strong>
+                    <small>Trưởng ban · {datetime.now().strftime("%d/%m/%Y")}</small>
+                </span>
+            </div>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,

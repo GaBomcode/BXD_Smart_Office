@@ -18,5 +18,18 @@ PAGES = {
 
 
 def render_router() -> None:
-    page = st.sidebar.radio("Chọn phân hệ", list(PAGES.keys()))
+    page = st.sidebar.radio("Chọn phân hệ", list(PAGES.keys()), label_visibility="collapsed")
+    st.sidebar.markdown(
+        """
+        <div class="bxd-menu-caption">HỆ THỐNG</div>
+        <div class="bxd-sidebar-note">
+            Nhân sự · Cấu hình · Sao lưu & phục hồi · Nhật ký hệ thống · Trợ giúp
+        </div>
+        <div class="bxd-sidebar-note">
+            <strong>BXD Smart Office</strong><br>
+            Chế độ offline · Dữ liệu nội bộ · V1.0 LTS
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     PAGES[page]()
